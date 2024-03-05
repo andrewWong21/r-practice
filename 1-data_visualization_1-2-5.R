@@ -36,7 +36,10 @@ tibble(penguins) # 344 (rows) x 8 (columns)
 ggplot(penguins, mapping = aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point()
 # possible clustering but no strong correlation
-
+ggplot(penguins, mapping = aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+# coloring by species shows there is a positive correlation between bill length and bill depth
 
 # 4. What happens if you make a scatterplot of species vs bill_depth_mm?
 # What might be a better choice of geom?
