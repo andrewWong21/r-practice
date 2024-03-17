@@ -83,6 +83,39 @@ read_csv(
 # read_delim() for automatically-guessed or specified delimiters,
 # read_table() for columns separated by whitespace
 
+# readr guesses column types using a heuristic,
+# which generally works well for clean datasets
+# but can break down for missing values
+
+read_csv("
+  logical,numeric,date,string
+  TRUE,1,2021-01-15,abc
+  false,4.5,2021-02-15,def
+  T,Inf,2021-02-16,ghi
+")
+
+# automatically classifies columns as logical, numeric, dates, or strings
+
+simple_csv <- "
+  x
+  10
+  .
+  20
+  30"
+
+read_csv(simple_csv)
+# the column x is numeric with . for missing values, but readr classifies it as a character column
+# readr expects NA for missing values by default
+
+# if dataset encounters unexpected value with specified column type, it will report a parsing issue
+df <- read_csv(
+  simple_csv, 
+  col_types = list(x = col_double())
+)
+
+# specifying how the dataset represents missing values fixes the issue
+read_csv(simple_csv, na = ".")
+
 # -------------------------------------------------------------------------
 
 # 1. What function would you use to read a file where fields were separated by "|"?
