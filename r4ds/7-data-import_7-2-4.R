@@ -116,6 +116,17 @@ df <- read_csv(
 # specifying how the dataset represents missing values fixes the issue
 read_csv(simple_csv, na = ".")
 
+# reader has 9 column types
+# col_logical() and col_double() for logicals (T, F) and real numbers respectively, usually guessed
+# col_integer() can be useful to save space compared to col_double()
+# col_character() is used for strings
+# col_factor() for columns with a limited number of values, will be covered later
+# col_date() and col_datetime() for dates and date-times
+# col_number() ignores non-numeric components within field
+# col_skip() indicates that a column will not be included in the final result
+
+# cols_only() allows explicit specification of columns to be read 
+
 # -------------------------------------------------------------------------
 
 # 1. What function would you use to read a file where fields were separated by "|"?
