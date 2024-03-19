@@ -33,7 +33,7 @@ students |>
   mutate(meal_plan = factor(meal_plan))
 
 # fixing age column due to non-numeric value
-students |> 
+students <- students |> 
   janitor::clean_names() |> 
   mutate(meal_plan = factor(meal_plan),
          age = parse_number(if_else(age == "five", "5", age)) # test, yes, no
@@ -126,6 +126,56 @@ read_csv(simple_csv, na = ".")
 # col_skip() indicates that a column will not be included in the final result
 
 # cols_only() allows explicit specification of columns to be read 
+
+# read_csv() can read multiple files at once
+sales_files <- c(
+  "https://pos.it/r4ds-01-sales",
+  "https://pos.it/r4ds-02-sales",
+  "https://pos.it/r4ds-03-sales"
+)
+
+read_csv(sales_files, id = "file")
+# id argument can be used to identify which file the row originates from
+
+# list.files() function can be used to generate a list of existing files matching filename pattern
+sales_files2 <- list.files("data", pattern = "sales\\.csv$", full.names = TRUE)
+sales_files2
+
+students
+
+# write data back to disk with write_csv() and write_tsv() with arguments x (dataframe) and file (location)
+# when data is written back to disk, column information is lost, can be troublesome with factor columns
+
+# write_rds() and read_rds() store data in the form RDS, R's custom binary format
+# which maintains column types and groupings
+
+# arrow package can be used to save data as parquet files, which are faster and can be used outside of R
+library("arrow")
+write_parquet(students, "students.parquet")
+
+# tibble() and tribble() allow manual specification of tibble objects, best for small datasets
+# tibble() assembles tibbles by column
+tibble(
+  x = c(1, 2, 5),
+  y = c("h", "m", "g"),
+  z = c(0.08, 0.83, 0.60)
+)
+
+# tribble() lays out data row by row as a transposed tibble
+tribble(
+  ~x, ~y, ~z,
+  1, "h", 0.08,
+  2, "m", 0.83,
+  5, "g", 0.60
+)
+
+# if issues arise, build a minimal reproducible example
+# using library() and necessary objects directly related to problem
+# reprex::reprex() formats code in Markdown format that can be copy-pasted and immediately run
+reprex::reprex()
+mtcars <- dput(mtcars)
+
+# make sure to include packages with library(), smallest useful subset of data with dput(), and concise code
 
 # -------------------------------------------------------------------------
 
