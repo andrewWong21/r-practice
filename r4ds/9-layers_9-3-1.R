@@ -32,6 +32,40 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 ggplot(mpg, aes(x = displ, y = hwy)) + 
   geom_smooth(aes(color = drv), show.legend = FALSE)
 
+# different aesthetics can be displayed in different layers
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = class)) + 
+  geom_smooth()
+
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_point(
+    data = mpg |> filter(class == "2seater"),
+    color = "red"
+  ) + 
+  geom_point(
+    data = mpg |> filter(class == "2seater"),
+    shape = "circle open", size = 3, color = "red"
+  )
+
+# histogram and density plots show modality of data (bimodal)
+ggplot(mpg, aes(x = hwy)) + 
+  geom_histogram(binwidth = 2)
+ggplot(mpg, aes(x = hwy)) + 
+  geom_density()
+# box plot shows two outliers
+ggplot(mpg, aes(x = hwy)) + 
+  geom_boxplot()
+
+# extension packages can provide additional plots beyond ggplot's geoms
+library("ggridges")
+
+ggplot(mpg, aes(x = hwy, y = drv, fill = drv, color = drv)) + 
+  geom_density_ridges(alpha = 0.5, show.legend = FALSE)
+
+# visit reference page https://ggplot2.tidyverse.com/reference
+# for info on all geoms and functions within ggplot2 package
+
 # -------------------------------------------------------------------------
 
 # 1. What geom would you use to draw a line chart? 
