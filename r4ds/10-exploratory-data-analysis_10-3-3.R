@@ -69,16 +69,102 @@ unusual
 # 1. Explore the distribution of each of the x, y, and z variables in diamonds.
 # What do you learn? Think about a diamond and how you might decide which
 # dimension is the length, width, and depth.
+ggplot(diamonds, aes(x = x)) + 
+  geom_histogram()
+
+ggplot(diamonds, aes(x = x)) + 
+  geom_histogram(binwidth = 0.01)
+
+ggplot(diamonds, aes(x = x)) + 
+  geom_histogram(binwidth = 0.01) + 
+  coord_cartesian(ylim = c(0, 50))
+
+diamonds |> count(x, sort = TRUE)
+# The most common length is around 4.37 mm, but there are
+# about 5 common values for length.
+
+ggplot(diamonds, aes(x = y)) + 
+  geom_histogram()
+
+ggplot(diamonds, aes(x = y)) + 
+  geom_histogram(binwidth = 0.05)
+
+ggplot(diamonds, aes(x = y)) + 
+  geom_histogram(binwidth = 0.01) + 
+  coord_cartesian(ylim = c(0, 50))
+
+diamonds |> count(y, sort = TRUE)
+# The most common width is close to the most common length at around 4.34 mm.
+
+ggplot(diamonds, aes(x = z)) + 
+  geom_histogram()
+
+ggplot(diamonds, aes(x = z)) + 
+  geom_histogram(binwidth = 0.05)
+
+ggplot(diamonds, aes(x = z)) + 
+  geom_histogram(binwidth = 0.05) + 
+  coord_cartesian(ylim = c(0, 50))
+
+diamonds |> count(z, sort = TRUE)
+# The most common depth is about 2.7 mm.
+# The shape of the distribution for depth is very similar to that of width.
 
 
 # 2. Explore the distribution of price. Do you discover anything unusual or
 # surprising? (Try a wide range of values for binwidth.)
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram()
+# The price distribution is heavily right skewed,
+# with most prices less than $5000.
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram(binwidth = 50)
+# Using a smaller binwidth reveals a gap in the data.
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram(binwidth = 10) + 
+  coord_cartesian(xlim = c(0, 2500), ylim = c(0, 500))
+#There appear to be no diamonds with prices around $1500.
+
+diamonds|> filter(price >= 1450 & price <= 1550) |> count(price)
+# There are no diamonds with prices from $1455 to $1545.
 
 
 # 3. How many diamonds are 0.99 carat? How many are 1 carat?
 # What do you think is the cause of the difference?
 
+diamonds|> filter(carat >= 0.99 & carat <= 1) |> count(carat)
+# There are 23 diamonds that are 0.99 carat and 1558 diamonds that are 1 carat.
+# Doing some research reveals that diamonds are priced per carat,
+# so diamonds that are at least 1 carat will be more expensive.
+
 
 # 4. Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming
 # in on a histogram. What happens if you leave binwidth unset? What happens if
 # you try and zoom so only half a bar shows?
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram()
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram() + 
+  coord_cartesian(xlim = c(0, 1000), ylim = c(0, 5000))
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram(binwidth = 100)
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram(binwidth = 100) + 
+  coord_cartesian(xlim = c(0, 1000), ylim = c(0, 2000))
+# using coord_cartesian zooms in on the graph without affecting
+# or removing the data that is outside given limits for axes
+# histogram binning is applied before changing the plot scale
+
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram() + 
+  xlim(0, 1000)
+ggplot(diamonds, aes(x = price)) + 
+  geom_histogram() + 
+  ylim(0, 5000)
+# using xlim or ylim removes all data outside the given limits
+# histogram binning is then applied to this filtered data
