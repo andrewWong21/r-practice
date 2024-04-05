@@ -103,3 +103,75 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 
 # legend should be placed at the top or bottom for short and wide plots,
 # and placed to the left or right for tall and narrow plots
+
+# scales can be replaced, often continuous position and color scales
+
+# plotting raw carat and price values
+ggplot(diamonds, aes(x - carat, y = price)) + 
+  geom_bin2d()
+
+# plotting log-transformed carat and price
+ggplot(diamonds, aes(x = log10(carat), y = log10(price))) + 
+  geom_bin2d()
+
+# instead of transforming aesthetic mapping, transform the scale
+# this keeps the original data scale instead of the transformed value scale
+ggplot(diamonds, aes(x = carat, y = price)) + 
+  geom_bin2d() + 
+  scale_x_log10() + 
+  scale_y_log10()
+
+# default color scale picks evenly-spaced colors from color wheel
+# ColorBrewer scales provide more colorblind-friendly schemes
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv))
+
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  scale_color_brewer(palette = "Set1")
+
+# if only a few colors are used, adding a redundant shape mapping
+# keeps the plot interpretable even without color
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv, shape = drv)) + 
+  scale_color_brewer(palette = "Set1")
+
+# RColorBrewer package documents color scales on https://colorbrewer2.org/
+# provides sequential and diverging palettes, useful for ordered categories
+
+# use scale_color_manual() for predefined color-value mappings
+# hex color codes can be assigned manually
+presidential |> 
+  mutate(id = 33 + row_number()) |> 
+  ggplot(aes(x = start, y = id, color = party)) + 
+  geom_point() + 
+  geom_segment(aes(xend = end, yend = id)) + 
+  scale_color_manual(values = c(Republican = "#E81B23", Democratic = "#00AEF3"))
+
+# viridis color scales are perceptible to various types of color blindness
+# as well as perceptually uniform in color and B/W
+# provides support for binned, continuous, and discrete palettes for scales
+
+df <- tibble(
+  x = rnorm(10000),
+  y = rnorm(10000)
+)
+
+ggplot(df, aes(x, y)) + 
+  geom_hex() + 
+  coord_fixed() + 
+  labs(title = "Default, continuous", x = NULL, y = NULL)
+
+ggplot(df, aes(x, y)) + 
+  geom_hex() + 
+  coord_fixed() + 
+  scale_fill_viridis_c() + 
+  labs(title = "Viridis, continuous", x = NULL, y = NULL)
+
+ggplot(df, aes(x, y)) + 
+  geom_hex() + 
+  coord_fixed() + 
+  scale_fill_viridis_b() + 
+  labs(title = "Viridis, binned", x = NULL, y = NULL)
+
+# all color scales are provided in scale_color_*() and scale_fill_*() varieties
