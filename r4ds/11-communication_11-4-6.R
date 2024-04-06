@@ -175,3 +175,114 @@ ggplot(df, aes(x, y)) +
   labs(title = "Viridis, binned", x = NULL, y = NULL)
 
 # all color scales are provided in scale_color_*() and scale_fill_*() varieties
+
+# plot limits can be controlled in 3 different ways
+# adjusting what data are plotted, setting scale limits, setting xlim/ylim
+
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth()
+
+# plotting a subset of the data affects x/y scales and smooth curve
+mpg |> 
+  filter(displ >= 5 & displ <= 6 & hwy >= 10 & hwy <= 25) |> 
+  ggplot(aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth()
+
+# setting limits for axis scales is equivalent to subsetting data
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth() + 
+  scale_x_continuous(limits = c(5, 6)) + 
+  scale_y_continuous(limits = c(10, 25))
+
+# zooming with coord_cartesian keeps overall shapes of data and geoms
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = drv)) + 
+  geom_smooth() + 
+  coord_cartesian(xlim = c(5, 6), ylim = c(10, 25))
+
+# expanding limits is useful when matching scales across different plots
+suv <- mpg |> filter(class == "suv")
+compact <- mpg |> filter(class == "compact")
+
+ggplot(suv, aes(x = displ, y = hwy, color = drv)) + 
+  geom_point()
+ggplot(compact, aes(x = displ, y = hwy, color = drv)) + 
+  geom_point()
+
+# sharing scales across multiple plots can be done by using limits of full data
+x_scale <- scale_x_continuous(limits = range(mpg$displ))
+y_scale <- scale_y_continuous(limits = range(mpg$hwy))
+col_scale <- scale_color_discrete(limits = unique(mpg$drv))
+
+
+ggplot(suv, aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  x_scale + 
+  y_scale + 
+  col_scale
+ggplot(compact, aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  x_scale + 
+  y_scale + 
+  col_scale
+
+# -------------------------------------------------------------------------
+
+# 1. Why doesn't the following code override the default scale?
+ggplot(df, aes(x, y)) + 
+  geom_hex() + 
+  scale_color_gradient(low = "white", high = "red") + 
+  coord_fixed()
+
+# the color aesthetic for geom_hex() affects the border of the hexagons
+# to fix this, use scale_fill_gradient() instead of scale_color_gradient
+ggplot(df, aes(x, y)) + 
+  geom_hex() + 
+  scale_fill_gradient(low = "white", high = "red") + 
+  coord_fixed()
+
+
+# 2. What is the first argument to every scale? How does it compare to labs()?
+# The first argument is the name of the scale. 
+
+# The scale name appears as the label for the axis specified by the scale
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = class)) +
+  scale_x_continuous(name = "XLabel_scale") +
+  scale_y_continuous(name = "YLabel_scale")
+
+# this is equivalent to using labs() and assigning a string for the axis label
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = class)) +
+  labs(x = "XLabel_labs", y = "YLabel_labs")
+
+
+# 3. Change the display of the presidential terms by:
+# combining the two variants that customize colors and axis breaks.
+# improving the display of the y axis.
+# labelling each term with the name of the president.
+# adding informative plot labels.
+# placing breaks every 4 years.
+
+# TODO: complete
+
+presidential |> 
+  mutate(
+    id = 33 + row_number(),
+    name_label = str_c(name, " ", id)
+    ) |> 
+  ggplot(aes(x = start, y = id, color = party)) + 
+  geom_point() + 
+  geom_segment(aes(xend = end, yend = id)) + 
+  scale_color_manual(
+    values = c(Republican = "#E81B23", Democratic = "#00AEF3")
+  )
+
+# 4. First, create the following plot. Then, modify the code
+# using override.aes to make the legend easier to see.
+ggplot(diamonds, aes(x = carat, y = price)) + 
+  geom_point(aes(color = cut), alpha = 0.05) + 
+  guides(color = guide_legend(override.aes = list(size = 5, alpha = 1)))
