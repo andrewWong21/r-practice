@@ -263,22 +263,42 @@ ggplot(mpg, aes(x = displ, y = hwy)) +
 # 3. Change the display of the presidential terms by:
 # combining the two variants that customize colors and axis breaks.
 # improving the display of the y axis.
-# labelling each term with the name of the president.
+# labeling each term with the name of the president.
 # adding informative plot labels.
 # placing breaks every 4 years.
-
-# TODO: complete
 
 presidential |> 
   mutate(
     id = 33 + row_number(),
     name_label = str_c(name, " ", id)
     ) |> 
-  ggplot(aes(x = start, y = id, color = party)) + 
-  geom_point() + 
-  geom_segment(aes(xend = end, yend = id)) + 
-  scale_color_manual(
+  ggplot(aes(x = start, y = id)) + 
+  geom_point(aes(color = party)) + 
+  geom_segment(aes(xend = end, yend = id, color = party)) + 
+  geom_text( # labeling each term with the name of the president
+    aes(label = name), 
+    hjust = 0, 
+    vjust = -0.5
+  ) + 
+  scale_color_manual( # customize colors
     values = c(Republican = "#E81B23", Democratic = "#00AEF3")
+  ) + 
+  scale_x_date( # customize x axis breaks, place breaks every 4 years
+    breaks = presidential$start, 
+    date_breaks = "4 years",
+    date_labels = "'%y"
+  ) + 
+  scale_y_continuous( # improve display of y axis
+    breaks = 34:45
+  ) + 
+  theme(
+    panel.grid.minor = element_blank() # hide minor grid lines
+  ) + 
+  labs( # adding informative plot labels
+    title = "Terms of US Presidents 34-45",
+    subtitle = "From Eisenhower to Trump",
+    x = "Term",
+    y = "President"
   )
 
 # 4. First, create the following plot. Then, modify the code
