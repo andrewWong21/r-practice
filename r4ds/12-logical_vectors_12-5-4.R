@@ -66,6 +66,26 @@ flights |>
     .keep = "used"
   )
 
+# if_else() and case_when() require compatible types in output
+# results for each condition must return the same type
+if_else(TRUE, "a", 1)
+
+case_when(
+  x < -1 ~ TRUE,
+  x > 0 ~ now()
+)
+
+# numerical and logical vectors are compatible
+# strings and factors are compatible
+# dates and date-times are compatible
+# NA is compatible with everything else
+
+# values in logical vectors are always TRUE, FALSE, or NA
+# create these vectors with <, >, <=, >=, ==, !=, is.na()
+# combine vectors with !, &, |, xor() (exclusive or)
+# summarize with any(), all(), sum(), mean()
+# return output based on values in vector with if_else() and case_when()
+
 # -------------------------------------------------------------------------
 
 # 1. A number is even if it's divisible by 2, which can be checked with
@@ -94,3 +114,18 @@ if_else(x >= 0, x, -x)
 # that is either TRUE or FALSE, and then create a character column that gives
 # the name of the holiday or is NA.
 
+flights |> 
+  mutate(
+    is_holiday = str_c(month, "-", day) %in% c("1-1", "7-4", "11-28", "12-25"),
+    holiday = if_else(
+      is_holiday, 
+      case_when(
+        month == 1  & day == 1  ~ "New Years Day",
+        month == 7  & day == 4  ~ "4th of July",
+        month == 11 & day == 28 ~ "Thanksgiving",
+        month == 12 & day == 25 ~ "Christmas"
+        ),
+      NA
+      ),
+    .keep = "used"
+    )
