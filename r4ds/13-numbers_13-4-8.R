@@ -81,13 +81,94 @@ flights |>
 # log10() is easy to back-transform with 10^x
 # inverse of log() is exp()
 
+# round() rounds to nearest integer
+x = 123.456
+round(x)
+
+# round to nearest 10^-n with round(x, digits = n)
+round(x, 2)
+round(x, 1)
+round(x, 0)
+round(x, -1)
+round(x, -2)
+
+# round() uses banker's rounding - rounds to the nearest even integer
+# when exactly halfway between two integers
+round(c(1.5, 2.5))
+
+# floor() rounds down, ceiling() rounds up, no digits argument
+floor(x)
+ceiling(x)
+
+# floor and ceiling do not use digits argument unlike round()
+# scale down and back up as needed to round up/down to specific places
+floor(x / 0.01) * 0.01   # round down to nearest 0.01
+ceiling(x / 0.01) * 0.01 # round up to nearest 0.01
+
+# can also round to nearest multiples in this way
+round(x / 4) * 4
+
+round(x / 0.25) * 0.25
+
+# use cut() to bin a numeric vector into discrete buckets
+y <- c(1, 2, 5, 10, 15, 20)
+cut(y, breaks = c(0, 5, 10, 15, 20))
+
+# breaks can be unevenly spaced if needed
+cut(y, breaks = c(0, 5, 10, 100))
+
+# labels can be supplied, there should be one fewer label than there are breaks
+cut(y,
+  breaks = c(0, 5, 10, 15, 20),
+  labels = c("small", "medium", "large", "extra large")
+)
+
+# values outside breaks will become NA
+z <- c(NA, -10, 5, 10, 30)
+cut(z, breaks = c(0, 5, 10, 15, 20))
+
+# interval types can be changed with right and include.lowest arguments
+
+# cumulative (running) sums, products, mins, maxes
+# can be calculated in base R with cumsum(), cumprod(), cummin(), cummax()
+nums <- 1:10
+cumsum(nums)
+
+# dplyr provides cumulative means with cummean()
+# slider package provides more complex rolling or sliding aggregate functions
+
 # -------------------------------------------------------------------------
 
 # 1. Explain in words what each line of the code
 # used to generate Figure 13.1 does.
 
+flights |> 
+  # group flights by the hour of their scheduled departure time, rounded down
+  group_by(hour = sched_dep_time %/% 100) |> 
+  # calculate proportion of cancelled flights (missing departure time)
+  # for each group by dividing the number of cancelled flights by group size
+  summarize(prop_cancelled = mean(is.na(dep_time)), n = n()) |> 
+  # filter flights to those scheduled to depart at 2 AM and later
+  # (remove group with outlier of 1 flight that was cancelled, proportion 100%)
+  filter(hour > 1) |> 
+  # plot proportion of flights vs. flight departure hour
+  ggplot(aes(x = hour, y = prop_cancelled)) +
+  # draw lines between proportions of cancelled flights in consecutive hours
+  geom_line(color = "grey50") + 
+  # indicate how many flights are grouped into the hour by point size
+  geom_point(aes(size = n))
+
+
 # 2. What trigonometric functions does R provide? Guess some names and
 # look up the documentation. Do they use degrees or radians?
+
+# sin, cos, tan for sine, cosine, tangent
+# asin, acos, atan for arc-sine, arc-cosine, arc-tangent
+# atan2(y, x) returns angle between x-axis and vector from (0, 0) to (x, y)
+# sinpi, cospi, tanpi compute cos(pi*x), sin(pi*x), tan(pi*x)
+
+# angles are measured in radians, not degrees
+
 
 # 3. Currently dep_time and sched_dep_time are convenient to look at, but hard
 # to compute with because they're not really continuous numbers. You can see
@@ -99,4 +180,18 @@ flights |>
 # Convert them to a more truthful expression of time, either fractional hours
 # or minutes since midnight.
 
+flights |> 
+  mutate(
+    fractional_hours = hour + minute / 60,
+    mins_since_midnight = 60 * hour + minute, # 60 * fractional_hours,
+    .keep = "used"
+  )
+
+
 # 4. Round dep_time and arr_time to the nearest five minutes.
+flights |> 
+  mutate(
+    rounded_dep_time = round(dep_time / 5) * 5,
+    rounded_arr_time = round(arr_time / 5) * 5,
+    .keep = "used"
+  )
