@@ -46,6 +46,25 @@ y - lag(y)
 # v == lag(v) shows when current value changes
 y == lag(y)
 
+
+# gaps between data can be used to create groups
+events <- tibble(
+  time = c(0, 1, 2, 3, 5, 10, 12, 15, 17, 19, 20, 27, 28, 30)
+)
+
+# consecutive identifiers allow for 
+
+events <- events |> 
+  mutate(
+    diff = time - lag(time, default = first(time)),
+    has_gap = diff >= 5
+  )
+events
+
+events |> mutate(
+  group = cumsum(has_gap)
+)
+
 # -------------------------------------------------------------------------
 
 # 1. Find the 10 most delayed flights using a ranking function. How do you 
