@@ -33,6 +33,8 @@ flights |>
 # quantile() is a generalization of median that allows finding value in x
 # that is greater than some specified percent of values
 # quantile(x, 0.5) is equal to median, quantile(x, 0.25) is first quartile, etc.
+
+# comparing max and q95 - top 5% of numerical column can be very extreme
 flights |> 
   group_by(year, month, day) |> 
   summarize(
@@ -40,7 +42,55 @@ flights |>
     q95 = quantile(dep_delay, 0.95, na.rm = TRUE),
     .groups = "drop"
   )
-  
+
+# two functions commonly used for finding the spread of a dataset
+# sd() and IQR(), which calculate standard deviation and interquartile range
+# IQR(x) = quantile(x, 0.75) - quantile(x, 0.25), range of middle 50% of data
+flights |> 
+  group_by(origin, dest) |> 
+  summarize(
+    distance_iqr = IQR(distance),
+    n = n(),
+    .groups = "drop"
+  ) |> 
+  filter(distance_iqr > 0)
+
+# summary statistics are fundamentally reductive, picking wrong summary
+# can result in missing important differences between groups
+# visualize distribution before picking summary functions to test
+
+# also check if the distributions for subgroups resemble that of the whole
+
+# common shape between frequency polygons of dep_delay for each day
+flights |> 
+  filter(dep_delay < 120) |> 
+  ggplot(aes(x = dep_delay, group = interaction(day, month))) + 
+  geom_freqpoly(binwidth = 5, alpha = 0.2)
+
+# can always create custom summaries for groups and separately summarizing them
+# also include number of observations in each group if possible
+
+# extract value at specific position of vector with first(), last(), nth(x, n)
+# note that dplyr uses na_rm instead of na.rm
+flights |> 
+  group_by(year, month, day) |> 
+  summarize(
+    first_dep = first(dep_time, na_rm = TRUE),
+    fifth_dep = nth(dep_time, 5, na_rm = TRUE),
+    last_dep = last(dep_time, na_rm = TRUE)
+  )
+
+# three reasons to use extraction functions:
+# can specify a default value with default argument if position does not exist
+# order_by argument can locally override order of rows
+# na_rm argument allows missing values to be dropped
+
+# extracting at positions is complementary to filtering on ranks
+# filtering gives all variables each in a separate row, unlike extracting
+flights |> 
+  group_by(year, month, day) |> 
+  mutate(r = min_rank(sched_dep_time)) |> 
+  filter(r %in% c(1, max(r)))
 
 # -------------------------------------------------------------------------
 
