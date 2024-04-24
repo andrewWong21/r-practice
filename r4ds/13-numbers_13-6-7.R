@@ -92,15 +92,56 @@ flights |>
   mutate(r = min_rank(sched_dep_time)) |> 
   filter(r %in% c(1, max(r)))
 
+# summary functions can be paired with mutate() for group standardization
+# x / sum(x) calculates proportion of total
+# (x - mean(x)) / sd(x) calculates z-score standardized to mean 0 and sd 1
+# (x - min(x)) / (max(x) - min(x)) standardizes to range [0, 1]
+# x / first(x) computes index based on first observation
+
 # -------------------------------------------------------------------------
 
 # 1. Brainstorm at least 5 different ways to assess the typical delay
-# characteristics of a group of flights. When is mean() useful? When is 
-# median() useful? When might you want to use something else? Why might you
-# want to use data from the planes dataset?
+# characteristics of a group of flights.
+# When is mean() useful? When is median() useful?
+# When might you want to use something else?
+# Should you use arrival delay or departure delay?
+# Why might you want to use data from the planes dataset?
+
+# calculate mean/median/range/interquartile range/standard deviation of delays
+
+# mean works best with normally distributed data with little to no outliers
+# median works better when distribution is skewed
+# or measurement needs to be robust against outliers
+
+# departure delay is useful for gauging both airport and carrier performance
+# arrival delay can be useful if delays during flight are important to consider
+
+# planes dataset provides info about manufacturer, # of engines, and speed,
+# can be joined with tailnum from flights dataset
+
 
 # 2. Which destinations show the greatest variation in air speed?
+flights |> 
+  mutate(
+    speed = 60 * distance / air_time
+  ) |> 
+  group_by(dest) |> 
+  summarize(
+    mean = mean(speed, na.rm = TRUE),
+    sd = sd(speed, na.rm = TRUE)
+  ) |> 
+  arrange(desc(sd))
+
 
 # 3. Create a plot to further explore the adventures of EGE. Can you find any
 # evidence that the airport moved locations? Can you find another variable
 # that might explain the difference?
+flights |> 
+  filter(dest == "EGE") |> 
+  ggplot(aes(x = distance, y = dest)) + 
+  geom_jitter(width = 0.1, height = 0.25)
+
+flights |> 
+  select(origin, dest, distance) |> 
+  filter(dest == "EGE") |> 
+  count(origin, dest, distance)
