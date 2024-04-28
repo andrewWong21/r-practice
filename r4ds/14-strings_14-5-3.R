@@ -143,12 +143,88 @@ df6 |>
     too_many = "merge"
   )
 
+# str_length() gives the number of letters in a string
+str_length(c("a", "R for data science", NA))
 
+# combine with count() to find the distribution of lengths of US babynames
+# and with filter() to find the longest names
+babynames |> 
+  count(length = str_length(name), wt = n)
 
+babynames |> 
+  filter(str_length(name) == 15) |> 
+  count(name, wt = n, sort = TRUE)
 
+# extract parts of a string using str_sub(string, start, end)
+# returns string of length end - start + 1
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
 
+# use negative values to count back from end
+str_sub(x, -3, -1)
 
+# str_sub() will return as much as possible instead of failing on short strings
+str_sub("a", 1, 5)
+
+# use str_sub() and mutate() to find first and last letter of each name
+babynames |> 
+  mutate(
+    first = str_sub(name, 1, 1),
+    last = str_sub(name, -1, -1)
+  )
 
 # -------------------------------------------------------------------------
 
-# 1. 
+# 1. When computing the distribution of the length of babynames,
+# why did we use wt = n?
+
+# wt = n sums up the values in the column n to count the number of times
+# a name was used in each year to get a more accurate view of distribution
+
+# not specifying wt only counts the number of rows with names of a given length
+# without counting how many times the names occurred in each year
+
+babynames |> 
+  count(str_length(name) == 2)
+
+babynames |> 
+  filter(str_length(name) == 2) |> 
+  summarize(sum(n))
+
+babynames |> 
+  count(length = str_length(name))
+
+babynames |> 
+  count(length = str_length(name), wt = n)
+
+
+# 2. Use str_length() and str_sub() to extract the middle letter from each
+# baby name. What will you do if the string has an even number of characters?
+
+# if name has even number of characters, extract middle 2 letters
+
+babynames |> 
+  mutate(
+    length = str_length(name),
+    middle = if_else(
+      length %% 2 == 0, 
+      str_sub(name, length %/% 2, length %/% 2 + 1), 
+      str_sub(name, length %/% 2 + 1, length %/% 2 + 1)
+    ),
+    .keep = "used"
+  )
+
+# 3. Are there any trends in the length of babynames over time? 
+# What about the popularity of first and last letters?
+
+babynames |> 
+  group_by(year) |> 
+  summarize(
+    avg_len = mean(str_length(name))
+  ) |> 
+  ggplot(aes(x = year, y = avg_len)) + 
+  geom_line()
+
+first <- babynames |> 
+  group_by(year) |> 
+  count(str_sub(name, 1, 1), wt = n)
