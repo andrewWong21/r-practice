@@ -173,6 +173,49 @@ babynames |>
     last = str_sub(name, -1, -1)
   )
 
+# charToRaw() shows underlying representation of string
+charToRaw("Hadley")
+
+# non-English text may use different encodings
+# incorrect text encodings can reduce readability of string
+x1 <- "text\nEl Ni\xf1o was particularly bad this year"
+read_csv(x1)$text
+read_csv(x1, locale = locale(encoding = "Latin1"))$text
+
+x2 <- "text\n\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xcd"
+read_csv(x2)$text
+read_csv(x2, locale = locale(encoding = "Shift-JIS"))$text
+
+# readr provides guess_encoding() to help find correct encoding
+# if not provided in documentation
+guess_encoding(x1)
+guess_encoding(x2)
+
+# languages with accents may encode accented letters as single character
+# or two characters, as unaccented letter with diacritic mark
+u <- c("\u00fc", "u\u0308")
+str_view(u)
+
+# strings look identical but have different lengths and first characters
+str_length(u)
+str_sub(u, 1, 1)
+
+# string equality with == marks them as different
+u[[1]] == u[[2]]
+
+# str_equal() from stringr marks them as the same
+str_equal(u[[1]], u[[2]])
+
+# stringr functions can behave differently depending on locales
+# e.g. English vs. Turkish locale
+str_to_upper(c("i", "ı"))
+str_to_upper(c("i", "ı"), locale = "tr")
+
+# sorting strings also depends on locale
+# e.g. English vs. Czech locale
+str_sort(c("a", "c", "ch", "h", "z"))
+str_sort(c("a", "c", "ch", "h", "z"), locale = "cs")
+
 # -------------------------------------------------------------------------
 
 # 1. When computing the distribution of the length of babynames,
@@ -214,9 +257,11 @@ babynames |>
     .keep = "used"
   )
 
+
 # 3. Are there any trends in the length of babynames over time? 
 # What about the popularity of first and last letters?
 
+# average baby name length increased until around 1990 then decreased afterward
 babynames |> 
   group_by(year) |> 
   summarize(
@@ -225,6 +270,52 @@ babynames |>
   ggplot(aes(x = year, y = avg_len)) + 
   geom_line()
 
-first <- babynames |> 
+# get vector of letters that were the most common starting letter
+# for at least one year
+starting_letters <- babynames |> 
   group_by(year) |> 
-  count(str_sub(name, 1, 1), wt = n)
+  count(first = str_sub(name, 1, 1), wt = n, sort = TRUE) |> 
+  slice_head(n = 1) |> 
+  pull(first) |> 
+  unique()
+
+# plot proportion of names each year for most common starting letters
+babynames |> 
+  select(c(year, name, n)) |> 
+  group_by(year) |> 
+  add_count(
+    first = str_sub(name, 1, 1), 
+    wt = n, 
+    name = "name_count"
+    ) |> 
+  mutate(
+    proportion = name_count / sum(n)
+  ) |> 
+  filter(first %in% starting_letters) |> 
+  ggplot(aes(x = year, y = proportion)) + 
+  geom_line(aes(color = first))
+
+# get vector of letters that were the most common ending letter
+# for at least one year
+ending_letters <- babynames |> 
+  group_by(year) |> 
+  count(last = str_sub(name, -1, -1), wt = n, sort = TRUE) |> 
+  slice_head(n = 1) |> 
+  pull(last) |> 
+  unique()
+
+# plot proportion of names each year for the most common ending letters
+babynames |> 
+  select(c(year, name, n)) |> 
+  group_by(year) |> 
+  add_count(
+    last = str_sub(name, -1, -1), 
+    wt = n, 
+    name = "name_count"
+  ) |> 
+  mutate(
+    proportion = name_count / sum(n)
+  ) |> 
+  filter(last %in% ending_letters) |> 
+  ggplot(aes(x = year, y = proportion)) + 
+  geom_line(aes(color = last))
