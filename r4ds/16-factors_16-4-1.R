@@ -12,7 +12,6 @@ relig_summary <- gss_cat |>
 ggplot(relig_summary, aes(x = tvhours, y = relig)) +
   geom_point()
 
-
 # fct_reorder(.f, .x) reorders factor .f given numerical values in vector .x
 # optional argument .fun, can be specified if multiple values of .x correspond
 # to a factor in .f, default is median()
@@ -39,7 +38,7 @@ rincome_summary <- gss_cat |>
     n = n()
   )
 
-# rincome has principled order
+# rincome has principled order, so reordering is not recommended
 # fct_reorder() should be used on arbitrarily-ordered factors instead
 ggplot(rincome_summary, aes(x = age, y = fct_reorder(rincome, age))) + 
   geom_point()
@@ -51,12 +50,13 @@ ggplot(rincome_summary, aes(x = age, y = rincome)) +
 # takes factor .f and any number of factors to move to front
 ggplot(
   rincome_summary, 
-  aes(x = age, y = fct_relevel(rincome, "Not applicable")
-  )
+  aes(x = age, y = fct_relevel(rincome, "Not applicable"))
 ) +
   geom_point()
 
-# fct_reorder2(.f, .x, .y) is useful for 
+# fct_reorder2(.f, .x, .y) is useful for coloring lines on plot, 
+# reordering factor .f by .y values for largest .x values
+# results in legend colors matching with lines on the right of the plot
 by_age <- gss_cat |> 
   filter(!is.na(age)) |> 
   count(age, marital) |> 
@@ -69,11 +69,14 @@ ggplot(by_age, aes(x = age, y = prop, color = marital)) +
   geom_line(linewidth = 1) + 
   scale_color_brewer(palette = "Set1")
 
-ggplot(by_age, aes(x = age, y = prop, color = fct_reorder2(marital, age, prop))) +
+ggplot(
+  by_age, 
+  aes(x = age, y = prop, color = fct_reorder2(marital, age, prop))
+) +
   geom_line(linewidth = 1) +
   scale_color_brewer(palette = "Set1") + 
   labs(color = "marital") 
-  
+
 # bar plots can be ordered by decreasing frequency with fct_infreq()
 # or by increasing frequency by combining fct_infreq() and fct_rev()
 gss_cat |>
@@ -96,7 +99,10 @@ gss_cat |>
   count(tvhours) |> 
   arrange(desc(tvhours))
 
-# Graphing median hours of TV watched by religion shows that people who
+ggplot(gss_cat, aes(x = tvhours)) + 
+  geom_boxplot()
+
+# # # Graphing median hours of TV watched by religion shows that people who
 # answered "Don't know" have the lowest median hours.
 gss_cat |> 
   group_by(relig) |> 
@@ -113,28 +119,22 @@ gss_cat |>
 
 # factor columns: marital, race, rincome, partyid, relig, denom
 # marital: principled (never married -> married)
-gss_cat |> 
-  count(marital)
+gss_cat |> count(marital)
 
-# race: principled by number of occurrences
-gss_cat |> 
-  count(race)
+# race: principled. ordered by number of occurrences
+gss_cat |> count(race)
 
-# rincome: principled by quantity when applicable
-gss_cat |> 
-  count(rincome)
+# rincome: principled, ordered by quantity when applicable
+gss_cat |> count(rincome)
 
-# partyid: ordered by party affiliation when applicable
-gss_cat |> 
-  count(partyid)
+# partyid: principled, ordered by party affiliation when applicable
+gss_cat |> count(partyid)
 
 # relig: arbitrary
-gss_cat |> 
-  count(relig)
+gss_cat |> count(relig)
 
 # denom: arbitrary
-gss_cat |> 
-  count(denom)
+gss_cat |> count(denom)
 
 
 # 3. Why did moving "Not applicable" to the front of the levels move it to
