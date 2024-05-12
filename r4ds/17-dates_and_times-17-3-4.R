@@ -68,8 +68,7 @@ flights_dt |>
 
 # strong bias towards flights leaving at "nice" departure times
 flights_dt |> 
-  mutate(minute = minute(sched_dep_time)) |> 
-  group_by(minute) |> 
+  group_by(minute = minute(sched_dep_time)) |> 
   summarize(n = n()) |> 
   ggplot(aes(x = minute, y = n)) + 
   geom_line()
@@ -133,7 +132,8 @@ flights_dt |>
   group_by(month, dep_hour) |> 
   mutate(n = n()) |> 
   ggplot(aes(x = dep_hour, y = n)) + 
-  geom_line(aes(color = month))
+  geom_line(aes(color = month)) + 
+  scale_x_continuous(breaks = seq(0, 23, 1), minor_breaks = NULL)
 
 
 # 2. Compare dep_time, sched_dep_time, and dep_delay. Are they consistent?
@@ -154,8 +154,8 @@ flights_dt |>
 # Explain your findings. (Hint: consider the location of the airport.)
 
 # The calculated and actual air times do not match as the arr_time and
-# dep_time are usually in different time zones due to the locations of the 
-# origin and destination airports.
+# dep_time are usually in different time zones, likely due to the 
+# different locations of the origin and destination airports.
 flights_dt |> 
   mutate(calc_air_time = as.double(arr_time - dep_time)) |> 
   select(air_time, calc_air_time, arr_time, dep_time) |> 
@@ -163,9 +163,41 @@ flights_dt |>
 
 
 # 4. How does the average delay time change over the course of a day?
+# Should you use dep_time or sched_dep_time? Why?
+
+# using sched_dep_time shows the original planned departure time
+# flights with scheduled departure hours later in the day
+# have a higher average delay
+flights_dt |>
+  group_by(hour = hour(sched_dep_time)) |> 
+  mutate(avg_delay = mean(dep_delay, na.rm = TRUE)) |> 
+  ggplot(aes(x = hour, y = avg_delay)) +
+  geom_line() + 
+  scale_x_continuous(breaks = seq(0, 23, 1), minor_breaks = NULL)
+
+# using dep_time shows the result of delay on the scheduled departure time
+# flights that were delayed the most took off very early in the day
+# using the previous plot, the late-night flights that were delayed 
+# ended up taking off early the next day
+flights_dt |>
+  group_by(hour = hour(dep_time)) |> 
+  mutate(avg_delay = mean(dep_delay, na.rm = TRUE)) |> 
+  ggplot(aes(x = hour, y = avg_delay)) +
+  geom_line() + 
+  scale_x_continuous(breaks = seq(0, 23, 1), minor_breaks = NULL)
+
 
 # 5. On what day of the week should you leave if you want to minimize the 
 # chance of a delay?
+
+# Saturday flights have the lowest average arrival and departure delays.
+flights_dt |> 
+  group_by(weekday = wday(sched_dep_time, label = TRUE, abbr = FALSE)) |> 
+  summarize(
+    wd_dep_delay = mean(dminutes(dep_delay), na.rm = TRUE),
+    wd_arr_delay = mean(dminutes(arr_delay), na.rm = TRUE)
+  )
+
 
 # 6. What makes the distribution of diamonds$carat
 # and flights$sched_dep_time similar?
@@ -195,3 +227,11 @@ ggplot(flights, aes(x = sched_dep_time)) +
 # 20-30 and 50-60 are caused by scheduled flights that leave early. (Hint: 
 # create a binary variable that tells you whether or not a flight was delayed.)
 
+flights_delayed <- flights_dt |> 
+  select(sched_dep_time, dep_time, dep_delay) |> 
+  mutate(left_early = dep_delay < 0) |> 
+  group_by(minute = as.factor(minute(dep_time) %/% 10 * 10))
+
+flights_delayed |> 
+  ggplot(aes(x = minute, fill = left_early)) + 
+  geom_bar(position = "dodge")
