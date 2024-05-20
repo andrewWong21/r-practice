@@ -20,14 +20,14 @@ airports
 # primary key of planes is tailnum
 planes
 
-# weather has compound key - primary key is combination of origin and time_hour\
+# weather has compound key - primary key is combination of origin and time_hour
 weather
 
 # foreign key - variable(s) that correspond to another table's primary key
 # primary and foreign keys almost always have the same name,
 # variable names used in multiple tables usually have the same meaning
 
-# check primary keys by using count() and seeing if n is greater than 1
+# check primary keys by using count() and seeing if any entries have n > 1
 planes |> 
   count(tailnum) |> 
   filter(n > 1)
@@ -48,7 +48,7 @@ flights |>
 
 # absence of duplicates do not automatically guarantee a good primary key
 
-# combination of latitude and longitude is not enough to identify an airport
+# combination of altitude and latitude is not enough to identify an airport
 airports |> 
   count(alt, lat) |> 
   filter(n > 1)
@@ -72,7 +72,9 @@ flights2
 # If it contained weather records for all airports in the USA, what additional
 # connection would it make to flights?
 
-# weather would be able to make an additional connection to flights$dest.
+# weather would be able to make an additional connection to the columns
+# year, month, day, hour, origin in flights to identify the weather at
+# the departure times of all flights from their origin airports
 
 
 # 3. The year, month, day, hour, and origin variables almost form a compound
@@ -101,16 +103,40 @@ weather |>
 # How would you characterize the relationship between the Batting, Pitching,
 # and Fielding data frames?
 
-head(Lahman::Batting)
-head(Lahman::People)
-head(Lahman::Salaries)
+library("Lahman")
+head(Batting)
+head(People)
+head(Salaries)
 
-head(Lahman::People)
-head(Lahman::Managers)
-head(Lahman::AwardsManagers)
+# common column playerID between Batting and People, People and Salaries
+colnames(Batting)[colnames(Batting) %in% colnames(People)]
+colnames(People)[colnames(People) %in% colnames(Salaries)]
 
-head(Lahman::Batting)
-head(Lahman::Pitching)
-head(Lahman::Fielding)
+# common columns playerID, yearID, teamID, lgID between Batting and Salaries
+colnames(Batting)[colnames(Batting) %in% colnames(Salaries)]
 
-# common column playerID in each data frame
+head(People)
+head(Managers)
+head(AwardsManagers)
+
+# common column playerID between People and Managers, People and AwardsManagers
+colnames(People)[colnames(People) %in% colnames(Managers)]
+colnames(People)[colnames(People) %in% colnames(AwardsManagers)]
+
+# common columns playerID, yearID, lgID between Managers and AwardsManagers
+colnames(Managers)[colnames(Managers) %in% colnames(AwardsManagers)]
+
+head(Batting)
+head(Pitching)
+head(Fielding)
+
+# common columns playerID, yearID, stint, teamID, lgID
+# between Batting, Pitching, and Fielding
+colnames(Batting)[colnames(Batting) %in% colnames(Pitching)]
+colnames(Batting)[colnames(Batting) %in% colnames(Fielding)]
+colnames(Pitching)[colnames(Pitching) %in% colnames(Fielding)]
+
+colnames(Batting)[
+  colnames(Batting) %in% colnames(Pitching) &
+    colnames(Batting) %in% colnames(Fielding)
+]

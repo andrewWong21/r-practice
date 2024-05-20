@@ -106,6 +106,7 @@ delayed <- flights |>
     delay_48hrs = delay_daily + lead(delay_daily)
   ) |> 
   arrange(desc(delay_48hrs))
+delayed
 
 
 # 2. Imagine you've found the top 10 most popular destinations using the
@@ -120,13 +121,13 @@ top_dest |>
 
 # 3. Does every departing flight have corresponding weather data for that hour?
 
-# There are 1,556 flights with no corresponding weather data.
+# There are 1,293 flights with no corresponding weather data.
 flights2 |> 
-  anti_join(weather)
+  anti_join(weather, join_by(time_hour))
 
-# 48 hours are missing weather data in the weather dataset.
+# 37 hours are missing weather data in the weather dataset.
 flights2 |> 
-  anti_join(weather) |> 
+  anti_join(weather, join_by(time_hour)) |> 
   distinct(time_hour)
 
 
@@ -137,7 +138,8 @@ flights2 |>
 # belong to the carriers AA (American Airlines) and MQ (Envoy Air).
 flights2 |> 
   anti_join(planes, join_by(tailnum)) |> 
-  count(carrier)
+  count(carrier) |> 
+  arrange(desc(n))
 
 
 # 5. Add a column to planes that lists every carrier that has flown that plane.
@@ -161,24 +163,54 @@ flights2 |>
 
 # 6. Add the latitude and longitude of the origin and destination airport to
 # flights. Is it easier to rename the columns before or after the join?
+
+# It is easier to rename the columns after joining the data frames.
 flights2 |> 
-  left_join()
+  left_join(airports, join_by(origin == faa)) |> 
+  rename(c(origin_lat = lat, origin_lon = lon)) |> 
+  left_join(airports, join_by(dest == faa)) |> 
+  rename(c(dest_lat = lat, dest_lon = lon))
 
 
 # 7. Compute the average delay by destination, then join on the airports data
 # frame to show the spatial distribution of delays.
-airports |>
-  semi_join(flights, join_by(faa == dest)) |>
-  ggplot(aes(x = lon, y = lat)) +
+
+dest_delays <- flights |>
+  group_by(dest) |> 
+  mutate(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    .before = 1
+  ) |>
+  distinct(avg_delay, dest) |> 
+  left_join(airports, join_by(dest == faa))
+dest_delays
+
+dest_delays |>
+  ggplot(aes(x = lon, y = lat, color = avg_delay)) +
   borders("state") +
-  geom_point() +
+  geom_point(size = 3) +
+  scale_color_viridis_c(option = "H") + 
   coord_quickmap()
+
 
 # 8. What happened on June 13, 2013? Draw a map of the delays, and then
 # use Google to cross-reference with the weather.
 
+june13_delays <- flights |> 
+  select(time_hour, arr_delay, dest) |> 
+  filter(date(time_hour) == "2013-06-13") |> 
+  group_by(dest) |> 
+  summarize(
+    avg_delay = mean(arr_delay, na.rm = TRUE)
+  ) |> 
+  left_join(airports, join_by(dest == faa))
 
+june13_delays |> 
+  ggplot(aes(x = lon, y = lat, color = avg_delay)) +
+  borders("state") +
+  geom_point(size = 3) +
+  scale_color_viridis_c(option = "H") + 
+  coord_quickmap()
 
-# On June 13, 2013, two windstorms occurred over the
-# Midwest and Mid-Atlantic regions of the United States.
-
+# On June 13, 2013, two windstorms occurred over the Midwest and Mid-Atlantic
+# regions of the United States, causing delays for departing flights.
