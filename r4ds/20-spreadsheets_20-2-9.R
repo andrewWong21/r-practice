@@ -83,6 +83,48 @@ penguins_torgersen <-
   )
 penguins_torgersen
 
+# alternatively, use excel_sheets() to get info on all worksheets
+# and read only the ones to be used for data analysis
+excel_sheets("data/penguins.xlsx")
+
+penguins_biscoe <- 
+  read_excel(
+    "data/penguins.xlsx",
+    sheet = "Biscoe Island",
+    na = "NA"
+  )
+penguins_dream <- 
+  read_excel(
+    "data/penguins.xlsx",
+    sheet = "Dream Island",
+    na = "NA"
+  )
+
+# each worksheet has the same number of columns but a different number of rows
+dim(penguins_torgersen)
+dim(penguins_biscoe)
+dim(penguins_dream)
+
+# combine worksheets together with bind_rows()
+penguins <- bind_rows(penguins_torgersen, penguins_biscoe, penguins_dream)
+penguins
+
+# excel spreadsheets are used for presentation as well as storage
+# cell entries may exist in spreadsheet that are not part of data to be read
+
+# readxl_example() shows example spreadsheets provided by readxl
+readxl_example()
+
+deaths_path <- readxl_example("deaths.xlsx")
+deaths <- read_excel(deaths_path)
+
+# top 3 rows and bottom 4 rows are not part of data
+deaths
+
+# can supply range of cells to be read instead of using skip_n and max
+# top left cell is A1, rows denoted by letters, columns denoted by numbers
+read_excel(deaths_path, range = "A5:F15")
+
 # -------------------------------------------------------------------------
 
 
