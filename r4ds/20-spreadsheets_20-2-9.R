@@ -53,7 +53,7 @@ students <- read_excel(
 )
 students
 
-# instead, read as text first and then  make change to value after loading
+# instead, read as text first and then make change to value after loading
 students <- read_excel(
   "data/students.xlsx",
   col_names = c("student_id", "full_name", "favorite_food", "meal_plan", "age"),
@@ -75,30 +75,27 @@ students
 # Excel spreadsheets may have multiple worksheets
 # read a single worksheet using the argument sheet = "title"
 # default behavior is reading the first worksheet of the spreadsheet
-penguins_torgersen <- 
-  read_excel(
-    "data/penguins.xlsx",
-    sheet = "Torgersen Island",
-    na = "NA"
-  )
+penguins_torgersen <- read_excel(
+  "data/penguins.xlsx",
+  sheet = "Torgersen Island",
+  na = "NA"
+)
 penguins_torgersen
 
 # alternatively, use excel_sheets() to get info on all worksheets
 # and read only the ones to be used for data analysis
 excel_sheets("data/penguins.xlsx")
 
-penguins_biscoe <- 
-  read_excel(
-    "data/penguins.xlsx",
-    sheet = "Biscoe Island",
-    na = "NA"
-  )
-penguins_dream <- 
-  read_excel(
-    "data/penguins.xlsx",
-    sheet = "Dream Island",
-    na = "NA"
-  )
+penguins_biscoe <- read_excel(
+  "data/penguins.xlsx",
+  sheet = "Biscoe Island",
+  na = "NA"
+)
+penguins_dream <- read_excel(
+  "data/penguins.xlsx",
+  sheet = "Dream Island",
+  na = "NA"
+)
 
 # each worksheet has the same number of columns but a different number of rows
 dim(penguins_torgersen)
@@ -160,7 +157,7 @@ write_xlsx(bake_sale, path = "data/bake-sale.xlsx")
 # factor -> chr, integer -> dbl
 read_xlsx("data/bake-sale.xlsx")
 
-# openxl package has more features compared to writexl package
+# openxlsx package has more features compared to writexl package
 # additional features like writing to worksheets and styling
 # https://ycphs.github.io/openxlsx
 
@@ -170,4 +167,73 @@ read_xlsx("data/bake-sale.xlsx")
 
 # -------------------------------------------------------------------------
 
+# 1. Read survey.xlsx into R, with survey_id as a character variable and
+# num_pets as a numeric variable.
 
+survey <- read_xlsx(
+  path = "data/survey.xlsx",
+  col_types = c("text", "text"),
+  na = c("N/A")
+) |> 
+  mutate(
+    survey_id = str_sub(survey_id, 1, 1),
+    n_pets = if_else(n_pets == "two", "2", n_pets),
+    n_pets = parse_number(n_pets)
+  )
+survey
+
+
+# 2. Read roster.xlsx into R and call the resulting data frame roster.
+
+roster <- read_xlsx(
+  path = "data/roster.xlsx"
+) |> 
+  fill(everything()) # or fill(group, subgroup)
+roster
+
+
+# 3. Read sales.xlsx into R and call the resulting data frame sales.
+sales <- read_xlsx(
+  path = "data/sales.xlsx",
+  col_names = c("id", "n"),
+  range = "A5:B13"
+) |> 
+  mutate(
+    id = if_else(str_starts(id, "Brand"), id, str_sub(id, 1, -3)),
+    n = str_sub(n, 1, 1)
+  )
+sales
+
+# tidying sales into format with three columns - brand, id, n
+# with brand as <chr>, id as <dbl>, n as <dbl>
+sales <- sales |> 
+  mutate(
+    brand = if_else(str_starts(id, "Brand"), id, NA),
+    .before = 1
+  ) |> 
+  fill(brand) |> 
+  filter(!str_starts(id, "Brand")) |> 
+  mutate(
+    id = as.double(id),
+    n = as.double(n)
+  )
+sales
+
+
+# 4. Recreate the bake_sale data frame and write it to an Excel file using
+# the write.xlsx() function from the openxlsx package.
+
+library("openxlsx")
+bake_sale2 <- tibble(
+  item     = factor(c("brownie", "cupcake", "cookie")),
+  quantity = c(10, 5, 8)
+) 
+bake_sale2 |> 
+  write.xlsx("data/bake_sale2.xlsx")
+
+
+# 5. Read students.xlsx and use the function janitor::clean_names()
+# to "clean" the column names.
+students2 <- read_xlsx("data/students.xlsx")
+students2
+students2 |> janitor::clean_names()
