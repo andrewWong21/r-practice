@@ -125,6 +125,49 @@ deaths
 # top left cell is A1, rows denoted by letters, columns denoted by numbers
 read_excel(deaths_path, range = "A5:F15")
 
+# all values in .csv files are strings
+# cells in Excel spreadsheets may hold one of four things:
+# a boolean: TRUE, FALSE, NA
+# a number: 10 or 10.5
+# a datetime: "11/1/21" or "11/1/21 3:00 PM"
+# a text string: "ten"
+
+# Excel has no notion of integers, stores all numbers as floating points
+# numbers can be displayed with customizable number of decimal places
+# dates are stored as numbers (seconds since midnight of Jan 1, 1970)
+# some cell contents look like numbers but are actually strings: e.g. '10
+
+# readxl will guess data types for given columns
+# first let readxl guess, then reimport with specified col_types if needed
+# columns may mix data types, set data type to "list" to load as vectors
+
+# data may be stored in other cell properties besides content
+# e.g. cell background color or text formatting
+# tidyxl package provides tools for handling non-tabular data
+# https://nacnudus.github.io/tidyxl/
+
+# data can be written back to disk as Excel file using write_xlsx()
+bake_sale <- tibble(
+  item     = factor(c("brownie", "cupcake", "cookie")),
+  quantity = c(10, 5, 8)
+)
+
+# column names in Excel are included and bolded by default
+# set col_names and format_headers = FALSE to change this behavior
+write_xlsx(bake_sale, path = "data/bake-sale.xlsx")
+
+# data type info is lost when reading file back into R
+# factor -> chr, integer -> dbl
+read_xlsx("data/bake-sale.xlsx")
+
+# openxl package has more features compared to writexl package
+# additional features like writing to worksheets and styling
+# https://ycphs.github.io/openxlsx
+
+# different naming conventions compared to tidyverse, so
+# running example functions in documentation is recommended
+# when learning to work with coding style of unfamiliar packages
+
 # -------------------------------------------------------------------------
 
 
