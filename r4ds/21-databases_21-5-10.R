@@ -142,3 +142,82 @@ planes |>
 # year and type are reserved words in duckdb, wrapped in double quotes
 # other databases may have all columns quoted to avoid reserved words
 # some systems may use double quotes or backticks to escape reserved words
+
+# variables created in mutate() are translated as new expressions in SELECT
+flights |> 
+  mutate(
+    speed = distance / (air_time / 60)
+  ) |> 
+  show_query()
+
+# FROM is straightforward when working with single tables - one data source
+# becomes more important when combined with join functions
+
+# group_by() is translated to GROUP BY clause
+# summarize() is translated to SELECT clause
+diamonds_db |> 
+  group_by(cut) |> 
+  summarize(
+    n = n(),
+    avg_price = mean(price, na.rm = TRUE)
+  ) |> 
+  show_query()
+
+# filter is translated to WHERE clause
+flights |> 
+  filter(dest == "IAH" | dest == "HOU") |> 
+  show_query()
+
+# in SQL, | is translated to "or", & is translated as "and"
+# SQL uses = for comparison as assignment is not possible
+# SQL uses single quotes for strings and double quotes for variables
+
+# SQL also has keyword IN, similar to %in%
+flights |> 
+  filter(dest %in% c("IAH", "HOU")) |> 
+  show_query()
+
+# SQL uses NULL compared to R's NA, are also infectious in comparisons and 
+# arithmetic, but are always silently dropped in summaries
+# dbplyr provides warnings about this behavior
+flights |> 
+  group_by(dest) |> 
+  summarize(delay = mean(arr_delay))
+
+# NULLs can be handled in SQL the same way NA is handled in R
+flights |> 
+  filter(!is.na(dep_delay)) |> 
+  show_query()
+# SQL translation will be correct but not always the simplest
+
+# filtering a variable created with summarize will generate HAVING clause
+# in SQL, filtering (WHERE) is evaluated before SELECT and GROUP BY
+# HAVING is evaluated after SELECT and GROUP BY
+diamonds_db |> 
+  group_by(cut) |> 
+  summarize(n = n()) |> 
+  filter(n > 100) |> 
+  show_query()
+
+# arrange() is translated into ORDER BY clause
+flights |> 
+  arrange(year, month, day, desc(dep_delay)) |> 
+  show_query()
+# desc() in dplyr is another SQL-inspired function, based on keyword DESC
+
+# a dplyr pipeline may require a subquery within a SELECT statement
+# a subquery is a query used as a data source for the FROM clause
+
+# subqueries are used to handle limitations of SQL,
+# such as the inability to reference newly-created columns
+
+# dplyr can create column and then reference it again within mutate()
+# SQL requires two steps to replicate, compute year1 and then compute year2
+flights |> 
+  mutate(
+    year1 = year + 1,
+    year2 = year1 + 1
+  ) |> 
+  show_query()
+
+# inner query is computed before the outer query
