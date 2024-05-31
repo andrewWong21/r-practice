@@ -221,3 +221,134 @@ flights |>
   show_query()
 
 # inner query is computed before the outer query
+
+# filtering by newly-created variable results in subquery in SQL translation
+# due to evaluation order of WHERE before SELECT
+flights |> 
+  mutate(year1 = year + 1) |> 
+  filter(year1 == 2014) |> 
+  show_query()
+
+# joins in SQL are similar to those in dplyr
+# add subclause to FROM clause to specify additional tables
+# and use ON to define relation between tables for joining
+flights |> 
+  left_join(planes |> rename(year_built = year), by = "tailnum") |> 
+  show_query()
+
+# clear SQL equivalents for inner_join(), right_join(), full_join()
+
+# database tables are often stored in highly normalized form
+# to reduce redundancies and dependencies in data, creating complex networks
+# use dm package https://cynkra.github.io/dm/ to determine table connections,
+# provide visualizations for connections, and generate joins
+
+# other dplyr verbs like distinct(), slice_*(), and intersect()
+# can be translated, dbplyr updates continue to add translations
+# for functions, as well as further optimize SQL queries
+
+# some summary functions have simple translations while others are more complex
+summarize_query <- function(df, ...){
+  df |> 
+    summarize(...) |> 
+    show_query()
+}
+mutate_query <- function(df, ...){
+  df |> 
+    mutate(...) |> 
+    show_query()
+}
+
+# mean() is simple, median() is complex
+# complexity is usually higher for operations that are
+# common in statistics but rare in databases
+flights |> 
+  group_by(year, month, day) |> 
+  summarize_query(
+    mean = mean(arr_delay, na.rm = TRUE),
+    median = median(arr_delay, na.rm = TRUE)
+  )
+
+# using summary functions within mutate functions
+# requires turning them into window functions in SQL
+# SQL aggregations are converted into window functions with OVER keyword
+flights |> 
+  group_by(year, month, day) |> 
+  mutate_query(
+    mean = mean(arr_delay, na.rm = TRUE)
+  )
+
+# GROUP BY is used exclusively for summaries in SQL,
+# so summary grouping in dplyr is done with PARTITION BY
+
+# SQL tables have no intrinsic order, so arrange() is needed sometimes
+# ordering function is repeated in window functions
+# since ORDER BY in main query does not automatically apply to them
+flights |> 
+  group_by(dest) |> 
+  arrange(time_hour) |> 
+  mutate_query(
+    lead = lead(arr_delay),
+    lag = lag(arr_delay)
+  )
+
+# if_else() and case_when() are translated into SQL with keywords CASE WHEN
+flights |> 
+  mutate_query(
+    description = if_else(arr_delay > 0, "delayed", "on-time")
+  )
+
+flights |> 
+  mutate_query(
+    description = 
+      case_when(
+        arr_delay < -5 ~ "early",
+        arr_delay < 5 ~ "on-time",
+        arr_delay >= 5 ~ "late"
+      )
+  )
+
+# CASE WHEN is also used for other functions without direct translations
+flights |> 
+  mutate_query(
+    description = cut(
+      arr_delay,
+      breaks = c(-Inf, -5, 5, Inf),
+      labels = c("early", "on-time", "late")
+    )
+  )
+
+# -------------------------------------------------------------------------
+
+# 1. What is distinct() translated to? How about head()?
+flights |> 
+  distinct(dest) |> 
+  show_query()
+# distinct() is translated using the DISTINCT keyword before a column
+
+flights |> 
+  head(5) |> 
+  show_query()
+# head(n) is translated using the LIMIT keyword followed by the number of rows
+
+# 2. Explain what each of the following SQL queries do and try
+# recreating them using dplyr.
+
+# SELECT *
+# FROM flights
+# WHERE dep_delay < arr_delay
+
+# show rows from flights with departure delays less than arrival delays
+flights |> 
+  filter(dep_delay < arr_delay) |> 
+  show_query()
+
+# SELECT *, distance / (air_time / 60) AS speed
+# FROM flights
+
+# add column "speed" calculated from "distance" and "air_time" columns
+flights |> 
+  mutate(
+    speed = distance / (air_time / 60)
+  ) |> 
+  show_query()
