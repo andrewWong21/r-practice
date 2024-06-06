@@ -82,9 +82,9 @@ tibble(
   y = c("1, 2", "3, 4, 5")
 )
 
-# lists and list-columns can be turned back into rows and columns
+# lists and list-columns can be turned back into regular rows and columns
 # list-columns may be named or unnamed
-# named children of lists usually have the same name in each row
+# named children of list-columns usually have the same name in each row
 
 # named list-columns naturally unlist into columns
 # each named element becomes a new named column
@@ -96,7 +96,7 @@ df1 <- tribble(
 )
 
 # unnamed list-columns tend to vary in length
-# naturally unlist into rows - one row for each child
+# naturally unnest into rows - one row for each child
 df2 <- tribble(
   ~x, ~y,
   1, list(11, 12, 13),
@@ -114,21 +114,87 @@ df1 |>
   unnest_wider(y, names_sep = "_")
 
 # unnest_longer() puts each element of list-column into its own row
-df2 |> 
-  unnest_longer(y)
+# x is duplicated for each element in y, one row for each element
+df2 |> unnest_longer(y)
 
 # if one element is empty, zero rows are created for output so row disappears
 # unless keep_empty is specified as TRUE to add NA for row instead
-df6 <- tribble(
+df3 <- tribble(
   ~x, ~y, 
   "a", list(1, 2),
   "b", list(3),
   "c", list()
 )
-df6 |> unnest_longer(y)
-df6 |> 
+df3 |> unnest_longer(y)
+df3 |> 
   unnest_longer(y, keep_empty = TRUE)
+
+# unnesting a list-column containing different types of vector
+# y contains two numbers, a character, and a logical
+df4 <- tribble(
+  ~x, ~y,
+  "a", list(1),
+  "b", list("a", TRUE, 5)
+)
+
+# unnest_longer() keeps set of columns unchanged while keeping number of rows
+# four rows are produced, every element of list-column contains one element
+# since no common vector can be found between the elements
+# every element of y is still the same type, though content types differ
+df4 |> unnest_longer(y)
+
+# unnest_auto() picks between unnest_wider() and unnest_longer() depending on
+# data structure, good for rapid exploration but does not help with
+# understanding data structure and makes code harder to read
+
+# unnest() expands both rows and columns, used for list-columns with
+# 2D structures like data frames
 
 # -------------------------------------------------------------------------
 
+# 1. What happens when you use unnest_wider() with unnamed list-columns
+# like df2? What argument is now necessary? What happens to missing values?
 
+# column y in df2 has unnamed list-columns of varying lengths
+# attempting to use unnest_wider() with y throws an error
+df2 |> unnest_wider(y)
+
+# requires names_sep argument to generate automatic names
+df2 |> unnest_wider(y, names_sep = "_")
+
+# missing values are converted to NA
+df3 |> unnest_wider(y, names_sep = "_")
+
+# 2. What happens when you use unnest_longer() with named list-columns
+# like df1? What additional information do you get in the output?
+# How can you suppress that extra detail?
+
+# using unnest_longer() with named list-column does not throw an error
+# adds _id column prefixed with the unnested column
+# with values being the name of the corresponding element
+df1 |> unnest_longer(y)
+
+# suppress index column by specifying indices_include = FALSE
+df1 |> unnest_longer(y, indices_include = FALSE)
+
+
+# 3. From time-to-time you encounter data frames with multiple list-columns 
+# with aligned values. For example, in the following data frame, the values of 
+# y and z are aligned (i.e. y and z will always have the same length within a
+# row, and the first value of y corresponds to the first value of z).
+# What happens if you apply two unnest_longer() calls to this data frame?
+# How can you preserve the relationship between y and z?
+df5 <- tribble(
+  ~x, ~y, ~z,
+  "a", list("y-a-1", "y-a-2"), list("z-a-1", "z-a-2"),
+  "b", list("y-b-1", "y-b-2"), list("z-b-1", "z-b-2")
+)
+
+# applying two unnest_longer() calls results in Cartesian product of rows
+df5 |> 
+  unnest_longer(y) |> 
+  unnest_longer(z)
+
+# unnest aligned columns simultaneously by passing a vector of list-columns
+df5 |> 
+  unnest_longer(c(y, z))
