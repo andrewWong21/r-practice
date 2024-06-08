@@ -55,3 +55,39 @@ repos |>
   unnest_wider(json) |> 
   select(id, full_name, owner, description) |> 
   unnest_wider(owner, names_sep = "_")
+
+# nested data is sometimes used to represent data which
+# would normally be spread across multiple data frames
+chars <- tibble(json = got_chars)
+chars
+
+# since json column contains named elements, use unnest_wider()
+# and select some columns for better readability
+characters <- chars |> 
+  unnest_wider(json) |> 
+  select(id, name, gender, culture, born, died, alive)
+characters
+
+# list-columns are also present in this dataframe
+chars |> 
+  unnest_wider(json) |> 
+  select(id, where(is.list))
+
+# unnest titles column into rows
+chars |> 
+  unnest_wider(json) |> 
+  select(id, titles) |> 
+  unnest_longer(titles)
+
+# saving title data in its own table for joining to characters data
+# remove rows with empty strings and renaming titles to title
+titles <- chars |> 
+  unnest_wider(json) |> 
+  select(id, titles) |> 
+  unnest_longer(titles) |> 
+  filter(titles != "") |> 
+  rename(title = titles)
+titles
+
+# tables can be created for each of the list-columns
+# separated data can be joined as needed
