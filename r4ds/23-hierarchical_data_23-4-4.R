@@ -91,3 +91,190 @@ titles
 
 # tables can be created for each of the list-columns
 # separated data can be joined as needed
+
+# gmaps_cities is a two-column tibble of five cities and 
+# results of Google's geocoding API as a very deeply nested list-column
+gmaps_cities
+
+# unnest named list-column json into columna
+gmaps_cities |> 
+  unnest_wider(json)
+
+# status column has one distinct value, OK, so it can be dropped
+# if status is not OK during real analysis, check what went wrong
+gmaps_cities |> 
+  unnest_wider(json) |> 
+  distinct(status)
+
+# unnest unnamed list-column results into separate rows 
+# reveals multiple cities with the same name
+gmaps_cities |> 
+  unnest_wider(json) |> 
+  select(-status) |> 
+  unnest_longer(results)
+
+# unnesting results into more columns
+# reveals Arlington matched cities in two different states
+# and Washington matched District of Columbia and Washington state
+locations <- gmaps_cities |> 
+  unnest_wider(json) |> 
+  select(-status) |> 
+  unnest_longer(results) |> 
+  unnest_wider(results)
+locations
+
+# unnesting geometry column to find exact location of match
+# bounds is a rectangular region, location is a point
+locations |> 
+  select(city, formatted_address, geometry) |> 
+  unnest_wider(geometry)
+
+# unnest location to see latitude and longitude
+locations |> 
+  select(city, formatted_address, geometry) |> 
+  unnest_wider(geometry) |> 
+  unnest_wider(location)
+
+# extracting bounds
+locations |> 
+  select(city, formatted_address, geometry) |> 
+  unnest_wider(geometry) |> 
+  select(!location:viewport) |> 
+  unnest_wider(bounds)
+
+# renaming northeast and southwest for cleaner unnested names with names_sep
+locations |> 
+  select(city, formatted_address, geometry) |> 
+  unnest_wider(geometry) |> 
+  select(!location:viewport) |> 
+  unnest_wider(bounds) |> 
+  rename(ne = northeast, sw = southwest) |> 
+  unnest_wider(c(ne, sw), names_sep = "_")
+
+# can use tidyr to directly extract components after discovering access path
+locations |> 
+  select(city, formatted_address, geometry) |> 
+  hoist(
+    geometry, 
+    ne_lat = c("bounds", "northeast", "lat"),
+    ne_lng = c("bounds", "northeast", "lng"),
+    sw_lat = c("bounds", "southwest", "lat"),
+    sw_lng = c("bounds", "southwest", "lng")
+  )
+
+# -------------------------------------------------------------------------
+
+# 1. Roughly estimate when gh_repos was created.
+# Why can you only roughly estimate the date?
+
+# latest repo update captured in gh_repos is at October 25, 2016
+# so the info was created on or after that date
+# gh_repos does not explicitly declare its creation date
+repos |> 
+  unnest_longer(json) |> 
+  unnest_wider(json) |> 
+  select(updated_at) |> 
+  arrange(desc(updated_at))
+
+
+# 2. The owner column of gh_repo contains a lot of duplicate information since
+# each owner can have many repos. Can you construct an owners data frame that
+# contains one row for each owner?
+
+# distinct() works with list-columns
+owners <- repos |> 
+  unnest_longer(json) |> 
+  unnest_wider(json) |> 
+  distinct(owner) |> 
+  unnest_wider(owner, names_sep = "_")
+owners
+
+
+# 3. Follow the steps used for titles to create tables for the aliases,
+# allegiances, books, and TV series for the Game of Thrones characters.
+
+# titles contains id and title
+titles
+
+aliases <- chars |> 
+  unnest_wider(json) |> 
+  select(id, aliases) |> 
+  unnest_longer(aliases) |> 
+  filter(aliases != "")
+aliases
+
+allegiances <- chars |> 
+  unnest_wider(json) |> 
+  select(id, allegiances) |> 
+  unnest_longer(allegiances)
+allegiances
+
+books <- chars |> 
+  unnest_wider(json) |> 
+  select(id, books) |>
+  unnest_longer(books)
+books
+
+tvSeries <- chars |> 
+  unnest_wider(json) |> 
+  select(id, tvSeries) |> 
+  unnest_longer(tvSeries)
+tvSeries
+
+
+# 4. Explain the following code line-by-line. Why is it interesting?
+# Why does it work for got_chars but might not work in general?
+
+# convert list of nested lists into tibble
+tibble(json = got_chars) |> 
+  # unnest named list-column json, one column for each named element of list
+  unnest_wider(json) |> 
+  # select id column and all list-columns
+  select(id, where(is.list)) |> 
+  # pivot list-columns, convert name of list-column to value of column "name"
+  # and list as value of column "value"
+  pivot_longer(
+    where(is.list),
+    names_to = "name",
+    values_to = "value"
+  ) |> 
+  # unnest list-column value, one row for each element in list
+  unnest_longer(value)
+
+# The resulting code works because the list-columns created after
+# unnesting json are all the same depth, allowing pivoting into simple
+# character vectors. If some list-columns had greater levels of nesting, 
+# pivot_longer would not work and further unnesting would be needed.
+
+
+# 5. In gmaps_cities, what does address_components contain? Why does the length
+# vary between rows? Unnest it appropriately to figure out.
+
+cities <- gmaps_cities |> 
+  unnest_wider(json) |> 
+  select(-status) |> 
+  unnest_longer(results) |> 
+  unnest_wider(results) |> 
+  select(formatted_address, address_components)
+
+# address_components contains up to 4 subcomponents, each a list
+# these lists contain two sublists
+# first sublist provides long and short names of address component
+# second sublist indicates type of address component
+# locality, administrative_level_2, administrative_level_1, country
+# length of address_components varies depending on 
+View(cities)
+
+cities |> 
+  unnest_wider(address_components, names_sep = "_") |> 
+  pivot_longer(
+    cols = -formatted_address,
+    names_to = "component",
+    values_to = "subcomponent"
+  ) |> 
+  unnest_wider(subcomponent) |> 
+  unnest_wider(types, names_sep = "_") |> 
+  select(-c(short_name, types_2)) |> 
+  filter(!is.na(long_name)) |> 
+  mutate(component = parse_number(component)) |> 
+  rename(type = types_1)
