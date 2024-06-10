@@ -56,3 +56,71 @@ str(parse_json('{"x": [1, 2, 3]}'))
 # jsonlite package also provides fromJSON(), which does automatic 
 # simplification of vectors, which works well in simple cases but
 # it's best to understand the process of rectangling nested structures
+
+# most JSON files contain a single top-level array: data about multiple things
+json <- '[
+  {"name": "John", "age": 34},
+  {"name": "Susan", "age": 27}
+]'
+
+# start rectangling of JSON array with tibble(json)
+df <- tibble(json = parse_json(json))
+df
+df |> 
+  unnest_wider(json)
+
+# some JSON files may consist of a single top-level object - one thing
+# start by wrapping object in list before putting it in a table
+json2 <- '{
+  "status": "OK",
+  "results": [
+    {"name": "John", "age": 34},
+    {"name": "Susan", "age": 27}
+  ]
+}'
+
+df2 <- tibble(json = list(parse_json(json2)))
+df2
+df2 |> 
+  unnest_wider(json) |> 
+  unnest_longer(results) |> 
+  unnest_wider(results)
+
+# alternatively, reach inside parsed JSON and extract relevant portion
+df3 <- tibble(results = parse_json(json2)$results)
+df3 |> 
+  unnest_wider(results)
+
+# -------------------------------------------------------------------------
+
+# 1. Rectangle the df_col and df_row below.
+# They represent the two ways of coding a data frame in JSON.
+
+json_col <- parse_json('
+  {
+    "x": ["a", "x", "z"],
+    "y": [10, null, 3]
+  }                     
+'
+)
+
+# wrap object in list before putting it in a tibble
+# turn each element into a row containing a named list
+# unnest named list to put elements into columns with unnest_wider()
+# unnest unnamed lists to put elements into rows with unnest_longer()
+tibble(json = list(json_col)) |> 
+  unnest_wider(json) |> 
+  unnest_longer(c(x, y))
+
+json_row <- parse_json('
+  [
+    {"x": "a", "y": 10},
+    {"x": "x", "y": null},
+    {"x": "z", "y": 3}
+  ]
+')
+
+# single top-level array, turn each element into a row containing a named list
+# unnest named list to put elements into columns with unnest_wider()
+tibble(json = json_row) |> 
+  unnest_wider(json)
