@@ -50,3 +50,74 @@
 # to control appearance of specific elements on page, also useful for scraping
 # href attribute in <a> identifies destination of link
 # src attribute in <img> identifies source of image
+
+# copy URL of page to be scraped and read HTML with read_html(url)
+# returns an xml_document object for manipulation with rvest functions
+read_html("https://rvest.tidyverse.org/")
+
+# write inline HTML with minimal_html()
+html_min <- minimal_html("
+<p>This is a paragraph</p>
+<ul>
+  <li>This is a bulleted list</li>
+</ul>
+")
+html_min
+
+# use CSS selectors to identify elements of interest and extract data
+# selectors define patterns for locating HTML elements
+# p selects all <p> elements
+# .title selects all elements with class 'title'
+# #title selects element with id 'title', id is always unique
+
+html_ex <- minimal_html("
+  <h1>This is a heading</h1>
+  <p id='first'>This is a paragraph</p>
+  <p class='important'>This is an important paragraph</p>
+")
+
+# use html_elements() to find elements that match selector
+html_ex |> html_elements("p")
+html_ex |> html_elements(".important")
+html_ex |> html_elements("#first")
+
+# html_element() (no s) returns the same number of outputs as inputs
+# returns first match when applied to an entire document
+html_ex |> html_element("p")
+
+# when using a selector that does not match any elements, 
+# html_elements() returns a vector of length 0
+# html_element() returns a missing value
+html_ex |> html_elements("b")
+html_ex |> html_element("b")
+
+# both are typically used together
+# html_elements() finds elements that will become observations
+# html_element() then finds elements that will become variables
+
+# unordered list of 4 items
+html_ul <- minimal_html("
+  <ul>
+    <li><b>C-3PO</b> is a <i>droid</i> that weighs <span class='weight'>167 kg</span></li>
+    <li><b>R4-P17</b> is a <i>droid</i></li>
+    <li><b>R2-D2</b> is a <i>droid</i> that weighs <span class='weight'>96 kg</span></li>
+    <li><b>Yoda</b> weighs <span class='weight'>66 kg</span></li>
+  </ul>
+")
+
+# create vector of characters using html_elements()
+characters <- html_ul |> html_elements("li")
+characters
+
+# extract name of characters by applying html_element() to output
+characters |> html_element("b")
+
+# when applied to a vector, html_element() maintains
+# connection between inputs and outputs
+characters |> html_element("span")
+
+# html_elements() returns all matches so connection is lost
+# if not all inputs have a corresponding output
+characters |> html_elements("span")
+
+# once elements are selected, need to extract data from contents or attributes
