@@ -114,10 +114,52 @@ characters |> html_element("b")
 
 # when applied to a vector, html_element() maintains
 # connection between inputs and outputs
-characters |> html_element("span")
+characters |> html_element(".weight")
 
 # html_elements() returns all matches so connection is lost
 # if not all inputs have a corresponding output
-characters |> html_elements("span")
+characters |> html_elements(".weight")
 
 # once elements are selected, need to extract data from contents or attributes
+
+# html_text2() extracts plaintext contents of HTML element
+# html_text2() is recommended over html_text()
+characters |> 
+  html_elements("b") |> 
+  html_text2()
+
+characters |> 
+  html_elements(".weight") |> 
+  html_text2()
+
+# escapes are handled within rvest, present in source HTML but not in output
+
+# html_attr() extracts data from attributes
+# always returns a string, so numbers and dates will require post-processing
+html_hrefs <- minimal_html("
+  <p><a href='https://en.wikipedia.org/wiki/Cat'>cats</a></p>
+  <p><a href='https://en.wikipedia.org/wiki/Dog'>dogs</a></p>
+")
+
+html_hrefs |> 
+  html_elements("p") |> 
+  html_elements("a") |> 
+  html_attr("href")
+
+# data can be read from an HTML table if already stored in one
+# HTML tables contain <table> <tr> <th> <td> tags
+html_table <- minimal_html("
+  <table class='mytable'>
+    <tr><th>x</th>   <th>y</th></tr>
+    <tr><td>1.5</td> <td>2.7</td></tr>
+    <tr><td>4.9</td> <td>1.3</td></tr>
+    <tr><td>7.2</td> <td>8.1</td></tr>
+  </table>
+")
+
+# html_table() returns a list containing one tibble for each table
+# on an HTML page, so it can be combined with html_element()
+# to extract just one specific table from the page
+html_table |> 
+  html_element(".mytable") |> 
+  html_table()
