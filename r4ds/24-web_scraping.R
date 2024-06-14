@@ -148,6 +148,7 @@ html_hrefs |>
 
 # data can be read from an HTML table if already stored in one
 # HTML tables contain <table> <tr> <th> <td> tags
+# <tr> represents table row, <th> represents table heading, <td> is table data
 html_table <- minimal_html("
   <table class='mytable'>
     <tr><th>x</th>   <th>y</th></tr>
@@ -163,3 +164,134 @@ html_table <- minimal_html("
 html_table |> 
   html_element(".mytable") |> 
   html_table()
+
+# values in x and y columns are automatically converted into numbers
+# may sometimes need to specify convert = FALSE and perform manual conversion
+
+# some experimentation required to find proper selectors
+# trial and error to find selectors that are both specific and sensitive
+# i.e. does not select irrelevant elements, selects relevant elements
+
+# SelectorGadget is JavaScript bookmarklet that can automatically generate
+# CSS selectors given a page and user-provided positive/negative examples
+
+# browsers provide web developer tools for inspecting elements and 
+# exploring page HTML to determine important class and id attributes
+
+# Selectors Explained https://kittygiraudel.github.io/selectors-explained/
+# translates CSS selectors into English explanations
+
+# CSS Dinner https://flukeout.github.io/ provides tutorial on selectors
+
+# MDN web docs https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
+# provide documentation on CSS selector syntax
+
+# web scraping can be time-sensitive
+# site structure may change, requiring scraping code to be changed
+
+# scraping movie data into data frame with columns title, year, director, intro
+vignette("starwars")
+
+url <- "https://rvest.tidyverse.org/articles/starwars.html"
+html_starwars <- read_html(url)
+
+# selecting <section> elements retrieves 7 elements, one for each movie
+section <- html_starwars |> html_elements("section")
+section
+
+# extract titles of each movie
+titles <- section |> 
+  html_elements("h2") |> 
+  html_text2()
+
+# extract year of release date
+# process strings into date objects
+release_dates <- section |> 
+  html_element("p") |> 
+  html_text2() |> 
+  str_remove("Released: ") |> 
+  parse_date()
+  
+# extract director of each movie
+directors <- section |> 
+  html_elements(".director") |> 
+  html_text2()
+
+intros <- section |> 
+  html_elements(".crawl") |> 
+  html_text2()
+
+# wrap results in tibble
+tibble(
+  title = titles,
+  released = release_dates,
+  director = directors,
+  intro = intros
+)
+
+# extracting info about top 250 movies from table in archived IMDb page
+url2 <- "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+html_movies <- read_html(url2)
+
+# one table on page
+table <- html_movies |> 
+  html_element("table") |> 
+  html_table()
+table
+
+# need to process table by removing empty columns, renaming columns,
+# removing whitespace in values of rank and title,
+# separating rank, year, and title into different columns
+
+# remove and rename columns at the same time with select()
+# replace newline and following whitespace with one space character
+# separate rank_title_year into [rank]. [title] ([year])
+ratings <- table |> 
+  select(
+    rank_title_year = `Rank & Title`,
+    rating = `IMDb Rating`
+  ) |> 
+  mutate(
+    rank_title_year = str_replace_all(rank_title_year, "\n +", " ")
+  ) |> 
+  separate_wider_regex(
+    rank_title_year,
+    patterns = c(
+      rank = "\\d+", "\\. ",
+      title = ".+", " +\\(",
+      year = "\\d+", "\\)"
+    )
+  )
+
+# exploring HTML may reveal attributes for easier parsing of data
+# find number of user ratings for each movie
+html_movies |> 
+  html_elements("td strong") |> 
+  head() |> 
+  html_attr("title")
+
+# combine with tabular data and apply separate_wider_regex()
+ratings |> 
+  mutate(
+    rating_n = html_movies |> 
+      html_elements("td strong") |> 
+      html_attr("title")
+  ) |> 
+  separate_wider_regex(
+    rating_n,
+    patterns = c(
+      "[0-9.]+ based on ",
+      number = "[0-9,]+", 
+      " user ratings"
+    )
+  ) |> 
+  mutate(
+    number = parse_number(number)
+  )
+
+# some sites dynamically generate page contents with JavaScript
+# scraping these sites with rvest requires simulating browser to run scripts
+# chromote package runs Chrome in background to simulate browser interactions
+
+# always consider legal and ethical implications before scraping web pages
+# use rvest with HTML and CSS selectors to extract elements with data
