@@ -110,3 +110,123 @@ subset_flights <- function(rows, cols){
     select(time_hour, carrier, flight, {{ cols }})
 }
 subset_flights()
+
+# pick() allows using tidy-selection within data-masking functions
+# count number of missing observations in rows
+# group_by() uses data-masking, but tidy-selection is needed within it
+count_missing <- function(df, group_vars, x_var){
+  df |> 
+    group_by(pick({{ group_vars }})) |> 
+    summarize(
+      n_miss = sum(is.na({{ x_var }})),
+      .groups = "drop"
+    )
+}
+flights |>
+  count_missing(c(year, month, day), dep_time)
+
+# pick() can also be used to make 2D table of counts
+# use vars in rows and cols, then use pivot_wider() to rearrange into grid
+count_wide <- function(data, rows, cols){
+  data |> 
+    count(pick(c({{ rows }}, {{ cols }}))) |> 
+    pivot_wider(
+      names_from = {{ cols }},
+      values_from = n,
+      names_sort = TRUE,
+      values_fill = 0
+    )
+}
+diamonds |> 
+  count_wide(c(clarity, color), cut)
+
+# tidy evaluation underpins tidyr
+# names_from in pivot_wider uses tidy-selection
+
+# -------------------------------------------------------------------------
+
+# 1. Using datasets from nycflights13, write a function that:
+
+# finds all flights that were cancelled or delayed by more than an hour
+filter_severe <- function(data){
+  data |> 
+    filter(is.na(arr_time) | arr_delay > 60)
+}
+flights |> filter_severe()
+
+# counts number of flights that were cancelled or delayed by more than an hour
+summarize_severe <- function(data){
+  data |> 
+    filter_severe() |> 
+    count()
+}
+flights |> group_by(dest) |> summarize_severe()
+
+# finds all flights that were cancelled
+# or delayed by a user-supplied number of hours
+filter_severe <- function(data, hours = 1){
+  data |> 
+    filter(is.na(arr_time) | arr_delay > 60 * hours)
+}
+flights |> filter_severe(hours = 2)
+
+# summarizes weather to compute minimum, mean, maximum of user-supplied variable
+summarize_weather <- function(data, var){
+  data |> 
+    summarize(
+      min = min({{ var }}, na.rm = TRUE),
+      mean = mean({{ var }}, na.rm = TRUE),
+      max = max({{ var }}, na.rm = TRUE),
+    )
+}
+weather |> summarize_weather(temp)
+
+# converts user-supplied variable using clock time into decimal time
+standardize_time <- function(data, var){
+  data |> 
+    mutate(
+      decimal_time = {{ var }} %/% 100 + ({{ var }} %% 100) / 60,
+      .keep = "used"
+    )
+}
+flights |> standardize_time(sched_dep_time)
+
+# 2. For each of the following functions list all arguments that use tidy
+# evaluation and describe whether they use data-masking or tidy-selection:
+
+# distinct()
+# ...: <data-masking>
+
+# count()
+# ..., wt: <data-masking>
+
+# group_by()
+# ...: <data-masking>
+
+# rename_with()
+# ..., .cols: <tidy-select>
+
+# slice_min()
+# ..., order_by, weight_by: <data-masking>
+# .by: <tidy-select>
+
+# slice_sample()
+# ..., order_by, weight_by: <data-masking>
+# .by: <tidy-select>
+
+
+# 3. Generalize the following function to allow supplying any number of
+# variables to count.
+count_prop <- function(df, var, sort = FALSE){
+  df |> 
+    count({{ var }}, sort = sort) |> 
+    mutate(prop = n / sum(n))
+}
+
+# count() uses data-masking, so pick() is needed for tidy-selection within
+count_props <- function(df, var, sort = FALSE){
+  df |> 
+    count(pick({{ var }}), sort = sort) |> 
+    mutate(prop = n / sum(n))
+}
+diamonds |> count_props(c(clarity, color))
