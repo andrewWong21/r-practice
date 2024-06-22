@@ -143,3 +143,171 @@ df_miss |> filter(if_any(a:d, is.na))
 
 # df_miss |> filter(is.na(a) & is.na(b) & is.na(c) & is.na(d))
 df_miss |> filter(if_all(a:d, is.na))
+
+# across() is useful for operating on multiple columns within functions
+expand_dates <- function(df){
+  df |> 
+    mutate(
+      across(where(is.Date), list(year = year, month = month, day = mday))
+    )
+}
+
+df_date <- tibble(
+  name = c("Amy", "Bob"),
+  date = c(ymd("2009-08-03", ymd("2010-01-16")))
+)
+
+df_date |> 
+  expand_dates()
+
+# across() allows supplying multiple columns to a single argument
+# first argument of across() uses tidy-select so it must be embraced
+summarize_means <- function(df, summary_vars = where(is.numeric)){
+  df |> 
+    summarize(
+      across({{ summary_vars }}, \(x) mean(x, na.rm = TRUE)),
+      n = n(),
+      .groups = "drop"
+    )
+}
+
+diamonds |> 
+  group_by(cut) |> 
+  summarize_means()
+
+diamonds |> 
+  group_by(cut) |> 
+  summarize_means(c(carat, x:z))
+
+# connection between across() and pivot_longer()
+# same calculations performed by first pivoting data, then
+# performing operations by group rather than by column
+
+# multi-function summary with across()
+df |> 
+  summarize(across(a:d, list(median = median, mean = mean)))
+
+# same values obtained by pivoting longer, then summarizing by group
+long <- df |> 
+  pivot_longer(a:d) |> 
+  group_by(name) |> 
+  summarize(
+    median = median(value),
+    mean = mean(value)
+  )
+long
+
+# same structure can then be obtained by pivoting wider
+long |> 
+  pivot_wider(
+    names_from = name,
+    values_from = c(median, mean),
+    names_vary = "slowest",
+    names_glue = "{name}_{.value}"
+  )
+
+# problem not currently possible to solve with across()
+# groups of columns to be computed with simultaneously
+df_paired <- tibble(
+  a_val = rnorm(10),
+  a_wts = runif(10),
+  b_val = rnorm(10),
+  b_wts = runif(10),
+  c_val = rnorm(10),
+  c_wts = runif(10),
+  d_val = rnorm(10),
+  d_wts = runif(10)
+)
+df_paired
+
+# straightforward to solve with pivot_longer()
+df_long <- df_paired |> 
+  pivot_longer(
+    everything(),
+    names_to = c("group", ".value"),
+    names_sep = "_"
+  )
+df_long
+
+df_long |> 
+  group_by(group) |> 
+  summarize(mean = weighted.mean(val, wts))
+
+# pivoting wider to return to original form
+df_long |> 
+  group_by(group) |> 
+  summarize(mean = weighted.mean(val, wts)) |> 
+  pivot_wider(
+    names_from = group,
+    values_from = mean,
+    names_glue = "{group}_{.value}"
+  )
+
+# -------------------------------------------------------------------------
+
+# 1. Practice your across() skills by:
+
+# Computing the number of unique values in each column of 
+# the data frame palmerpenguins::penguins.
+palmerpenguins::penguins |> 
+  summarize(across(everything(), n_distinct))
+
+# Computing the mean of every column in mtcars.
+mtcars |> 
+  summarize(across(where(is.numeric), mean))
+
+# Grouping diamonds by cut, clarity, and color then counting the number of 
+# observations and computing the mean of each numeric column.
+diamonds |> 
+  group_by(cut, clarity, color) |> 
+  mutate(n = n()) |> 
+  summarize(
+    across(where(is.numeric), mean), 
+    .groups = "drop"
+  )
+# observations in the same group have the same value for the column n
+# so computing the mean of n within a group has no noticeable effect
+
+
+# 2. What happens if you use a list of functions in across(),
+# but don't name them? How is the output named?
+
+# The functions are assigned numbers which are then used in the column names 
+diamonds |> 
+  summarize(across(where(is.numeric), list(median, mean)))
+
+
+# 3. Adjust expand_dates() to automatically remove date columns after
+# they've been expanded. Do you need to embrace any arguments?
+
+# since all date columns are expanded, can select all non-date columns
+# after expanding them into their components
+expand_dates_filter <- function(df){
+  df |> 
+    mutate(
+      across(where(is.Date), list(year = year, month = month, day = mday))
+    ) |> 
+    select(-where(is.Date))
+}
+df_date |> 
+  expand_dates_filter()
+
+
+# 4. Explain what each step of this pipeline does. What special feature of
+# where() are we taking advantage of?
+
+show_missing <- function(df, group_vars, summary_vars = everything()){
+  df |> 
+    # group by user-specified columns
+    group_by(pick({{ group_vars }})) |> 
+    # count missing values in each column in summary_vars for each group
+    summarize(
+      across({{ summary_vars }}, \(x) sum(is.na(x))),
+      .groups = "drop"
+    ) |> 
+    # select columns that have a nonzero value in at least one group
+    # uses ability to define custom function for where()
+    # which returns variables to be used in select()
+    select(where(\(x) any(x > 0)))
+}
+nycflights13::flights |> show_missing(c(year, month, day))
