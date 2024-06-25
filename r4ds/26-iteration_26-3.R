@@ -70,7 +70,39 @@ gapminder <- paths |>
   set_names(basename) |> 
   map(readxl::read_excel) |> 
   list_rbind(names_to = "year")
-write_csv(gapminder, "data/gapminder.csv")
+# write_csv(gapminder, "data/gapminder.csv")
 
 # when working in a project, put preparation code into file with 0 as prefix
 # indicating it should be run first (e.g. 0-cleanup.R)
+
+# if additional tidying is needed after loading files, best approach is to
+# consider all files at once  with simple iterations of tidying functions
+
+# writing one function to do all tidying steps
+process_file <- function(path){
+  df <- read_csv(path)
+  df |> 
+    filter(!is.na(id)) |> 
+    mutate(id = tolower(id)) |> 
+    pivot_longer(jan:dec, names_to = "month")
+}
+paths |> 
+  map(process_file) |> 
+  list_rbind()
+
+# performing each step of tidying and cleaning process on every file
+# results in holistic approach, higher quality result
+paths |> 
+  map(read_csv) |> 
+  map(\(df) df |> filter(!is.na(id))) |> 
+  map(\(df) df |> mutate(id = tolower(id))) |> 
+  map(\(df) pivot_longer(jan:dec, names_to = "month")) |> 
+  list_rbind()
+
+# alternatively, bind data frames earlier before using dplyr verbs
+paths |> 
+  map(read_csv) |> 
+  list_rbind() |> 
+  filter(!is.na(id)) |> 
+  mutate(id = tolower(id)) |> 
+  pivot_longer(jan:dec, names_to = "month")
