@@ -106,3 +106,52 @@ paths |>
   filter(!is.na(id)) |> 
   mutate(id = tolower(id)) |> 
   pivot_longer(jan:dec, names_to = "month")
+
+# data frames to combine may not be homogeneous
+# list_rbind() may either fail or produce data frame that is not very useful
+
+# start by loading files
+files <- paths |> 
+  map(readxl::read_excel)
+
+# use df_types function to capture structure of data frame
+# displaying column name, type, and number of missing values
+df_types <- function(df){
+  tibble(
+    col_name = names(df),
+    col_type = map_chr(df, vctrs::vec_ptype_full),
+    n_miss = map_int(df, \(x) sum(is.na(x)))
+  )
+}
+
+df_types(gapminder)
+
+# apply function to all files and perform pivoting to find differences
+files |> 
+  map(df_types) |> 
+  list_rbind(names_to = "file_name") |> 
+  select(-n_miss) |> 
+  pivot_wider(names_from = col_name, values_from = col_type)
+
+# heterogeneous formats will require more processing with other tools
+# map_if() selectively modifies list elements based on values
+# map_at() selectively modifies list elements based on names
+
+# map() either succeeds or fails as a whole
+# if structure of files is sufficiently wild, map() may not read any files
+# failure in one file should not prevent access to successfully read files
+
+# purr provides helper for this problem in the form of possibly()
+# function operator: takes function and returns function with modified behavior
+# changes function from erroring to returning user-specified value
+files <- paths |> 
+  map(possibly(\(path) readxl::read_excel(path), NULL))
+
+# list_rbind ignores NULLs so successfully read files can be accessed
+data <- files |> list_rbind()
+data
+
+# get paths that failed and diagnose problem
+# call import function on each file individually to find out what went wrong
+failed <- map_vec(files, is.null)
+paths[failed]
