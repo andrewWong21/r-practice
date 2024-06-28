@@ -43,3 +43,20 @@ paths |> walk(append_file)
 con |> 
   tbl("gapminder") |> 
   count(year)
+
+# group_next() nests tibbles, resulting in one row per value combination
+# of grouping variables, with last column being a list column of tibbles
+by_clarity <- diamonds |> 
+  group_nest(clarity)
+by_clarity
+
+by_clarity$data[[1]]
+
+# create column that gives name of output file
+by_clarity <- by_clarity |>
+  mutate(path = str_glue("data/diamonds-{clarity}.csv"))
+by_clarity
+
+# map() cannot be used since two arguments change for write_csv()
+# use map2() to vary first and second arguments, or walk2() without output
+walk2(by_clarity$data, by_clarity$path, write_csv)
