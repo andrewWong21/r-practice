@@ -60,3 +60,34 @@ by_clarity
 # map() cannot be used since two arguments change for write_csv()
 # use map2() to vary first and second arguments, or walk2() without output
 walk2(by_clarity$data, by_clarity$path, write_csv)
+
+# create function for drawing plot from dataframe
+carat_histogram <- function(df){
+  ggplot(df, aes(x = carat)) + geom_histogram(binwidth = 0.1)
+}
+
+carat_histogram(by_clarity$data[[1]])
+
+by_clarity <- by_clarity |> 
+  mutate(
+    plot = map(data, carat_histogram),
+    plot_path = str_glue("data/clarity-{clarity}.png")
+  )
+by_clarity
+
+# save each plot by combining walk2() with ggsave()
+walk2(
+  by_clarity$plot_path,
+  by_clarity$plot,
+  \(path, plot) ggsave(path, plot, width = 6, height = 6)
+)
+
+# recap: explicit iteration can be used to manipulate multiple columns, 
+# read multiple files, and save multiple outputs without repetitive code
+
+# R's orientation towards data analysis means that there is often an 
+# existing idiom or functional programming tool to handle iterative tasks
+
+# recommended reading for learning more about iteration: 
+# Functionals chapter of Advanced R https://adv-r.hadley.nz/functionals.html
+# documentation for purrr package https://purrr.tidyverse.org/
