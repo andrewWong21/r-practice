@@ -78,3 +78,76 @@ df2[, "x"]
 df1[, "x", drop = FALSE]
 typeof(df1[, "x"])
 typeof(df1[, "x", drop = FALSE])
+
+# several dplyr verbs are special cases of []
+# filter() subsets rows with a logical vector, excluding missing values
+df3 <- tibble(
+  x = c(2, 3, 1, 1, NA),
+  y = letters[1:5],
+  z = runif(5)
+)
+df3
+
+# equivalent statements
+df3 |> filter(x > 1)
+df3[!is.na(df3$x) & df3$x > 1, ]
+
+# which() drops missing values
+df3[which(df3$x > 1), ]
+df3[df3$x > 1, ]
+
+# arrange() subsets rows with integer vector, usually created with order()
+df3 |> arrange(x, y)
+df3[order(df3$x, df3$y), ]
+
+# use order(decreasing = TRUE) to sort all columns in decreasing order
+df3[order(df3$x, df3$y, decreasing = TRUE), ]
+
+# use -rank(col) to sort columns in decreasing order individually
+df3[order(-rank(df3$x), -rank(df3$y)), ]
+df3[order(-rank(df3$x), df3$y), ]
+df3[order(df3$x, -rank(df3$y)), ]
+
+# select() and relocate() subset columns with character vector
+df3 |> select(x, z)
+df3[, c("x", "z")]
+
+# base R provides subset() which is equivalent to combining
+# dplyr's filter() and select()
+df3 |> 
+  filter(x > 1) |> 
+  select(y, z)
+
+df3 |> subset(x > 1, c(y, z))
+
+# -------------------------------------------------------------------------
+
+# 1. Create functions that take a vector as input and return:
+
+v <- c(1, 2, NA, 4, 5, NA, 7, 8, NA, NA, NA, 12)
+v
+
+# a. The elements at even-numbered positions.
+even_pos <- function(v){
+  v[c(FALSE, TRUE)]
+}
+v |> even_pos()
+
+# b. Every element except the last value.
+except_last <- function(v){
+  v[-length(v)]
+}
+v |> except_last()
+
+# c. Only even values (and no missing values).
+even_not_na <- function(v){
+  v[which(v %% 2 == 0)]
+}
+v |> even_not_na()
+
+# 2. Why is x[-which(x > 0)] not the same as x[x <= 0]?
+w <- c(-Inf, -7, -6, -5, NA, -3, 0, NA, 1, 2, 3, NA, 5, 6, NaN, Inf)
+
+# difference is in how NaN is treated, using which() converts it to NA
+w[-which(w > 0)]
+w[w <= 0]
