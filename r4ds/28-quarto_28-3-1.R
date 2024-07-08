@@ -20,3 +20,21 @@
 
 # -------------------------------------------------------------------------
 
+# 1. Re-create the document in Figure 28.5 using the visual editor.
+
+# 2. Using the visual editor, insert a code chunk using the Insert menu and
+# then the insert anything tool.
+
+# 3. Using the visual editor, figure out how to:
+# Add a footnote.
+# Add a horizontal rule.
+# Add a block quote.
+
+# 4. In the visual editor, go to Insert > Citation and insert a citation to the
+# paper Welcome to the Tidyverse using its DOI (digital object identifier)
+# which is 10.21105/joss.01686. Render the document and observe how the
+# reference shows up in the document. 
+# What change do you observe in the YAML of your document?
+
+# A References section is added containing a fully-formatted citation,
+# including author names, paper title, and DOI among other information.

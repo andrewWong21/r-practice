@@ -2,13 +2,12 @@
 title: "28.3.1 Exercise 1"
 format: html
 editor: visual
+bibliography: references.bib
 ---
 
 ## Text formatting
 
 *italic* **bold** [underline]{.underline} ~~strikeout~~ [small caps]{.smallcaps} `code` superscript^2^ and subscript~2~
-
-<https://quarto.org>.
 
 ## Headings
 
@@ -20,23 +19,45 @@ editor: visual
 
 ## Lists
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+-   Bulleted list item 1
 
-```{r}
-1 + 1
-```
+-   Item 2
 
-You can add options to executable code like this
+    -   Item 2a
 
-```{r}
-#| echo: false
-2 * 2
-```
+    -   Item 2b
 
-The `echo: false` option disables the printing of code (only output is displayed).
+1.  Numbered list item 1
+
+2.  Item 2. The numbers are incremented automatically in the output.
 
 ## Links and Images
 
 <http://example.com>
 
-[linked phrase]<linked phrase>
+[linked phrase](https://example.com)
+
+<http://example.com>
+
+![](quarto/quarto.png)
+
+## Tables
+
+| First Header | Second Header    |
+|--------------|------------------|
+| Content Cell | Content Cell     |
+| Content Cell | Content Cell[^1] |
+
+[^1]: This is a footnote.
+
+Below is a horizontal rule.
+
+------------------------------------------------------------------------
+
+``` Python
+# This is a Python code block.
+def foo(bar):
+  return bar
+```
+
+This is a citation. [@wickham2019]
