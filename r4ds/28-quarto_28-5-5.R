@@ -48,7 +48,33 @@
 # eval: false suppresses code evaluation, output, plots, messages, warnings
 # include: false suppresses code display, output, plots, messages, warnings
 
+# change default options for chunks by adding options under YAML header
+# indented under execute: to set chunk options at document level
+
+# title: "My report"
+# execute:
+#   echo: false
+
+# Quarto uses different engines depending on programming language used
+# can set global options for knitr under knitr: > opts_chunk:
+
+# title: "Tutorial"
+# knitr:
+#   opts_chunk:
+#     comment: "#>"
+#     collapse: true
+
+# can embed R code directly into text with `r `
+# useful when mentioning data properties in text
+# e.g. `r nrow(diamonds)`
+# use format() to format numbers in text
+# by setting precision with digits argument
+# and making big numbers easier to read with big.mark argument
+
+comma <- function(x) format(x, digits = 2, big.mark = ",")
+comma(3452345)
+comma(.12358124331)
 
 # -------------------------------------------------------------------------
 
-
+# 
