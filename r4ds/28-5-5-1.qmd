@@ -1,0 +1,31 @@
+---
+title: "Diamond cut, color, and clarity variations"
+execute:
+  echo: false
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+```
+
+```{r}
+diamonds |> 
+  ggplot(aes(x = cut, fill = cut)) + 
+  geom_bar()
+```
+
+```{r}
+diamonds |> 
+  ggplot(aes(x = color, fill = color)) + 
+  geom_bar()
+```
+
+```{r}
+diamonds |> 
+  ggplot(aes(x = clarity, fill = clarity)) + 
+  geom_bar()
+```

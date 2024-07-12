@@ -77,4 +77,6 @@ comma(.12358124331)
 
 # -------------------------------------------------------------------------
 
-# 
+# 1. Add a section that explores how diamond sizes vary by cut, color
+# and clarity. Assume you’re writing a report for someone who doesn’t know R,
+# and instead of setting echo: false on each chunk, set a global option.
