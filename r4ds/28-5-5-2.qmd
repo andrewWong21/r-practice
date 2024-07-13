@@ -1,0 +1,38 @@
+---
+title: "Diamond sizes"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+
+smaller <- diamonds |> 
+  filter(carat <= 2.5)
+
+comma <- function(x) format(x, digits = 2, big.mark = ",")
+```
+
+We have data about `r comma(nrow(diamonds))` diamonds. Only `r comma(nrow(diamonds) - nrow(smaller))` are larger than 2.5 carats. The distribution of the remainder is shown below:
+
+```{r}
+#| label: plot-smaller-diamonds
+#| echo: false
+
+smaller |> 
+  ggplot(aes(x = carat)) + 
+  geom_freqpoly(binwidth = 0.01)
+```
+
+Characteristics of largest 20 diamonds:
+
+```{r}
+#| echo: false
+largest20 <- diamonds |> 
+  arrange(desc(carat)) |> 
+  head(20) |> 
+  select(carat, cut, color, clarity, price)
+largest20
+```

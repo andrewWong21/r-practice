@@ -80,3 +80,33 @@ comma(.12358124331)
 # 1. Add a section that explores how diamond sizes vary by cut, color
 # and clarity. Assume you’re writing a report for someone who doesn’t know R,
 # and instead of setting echo: false on each chunk, set a global option.
+
+diamonds |> 
+  ggplot(aes(x = cut, fill = cut)) +
+  geom_bar()
+
+diamonds |> 
+  ggplot(aes(x = color, fill = color)) +
+  geom_bar()
+
+diamonds |> 
+  ggplot(aes(x = clarity, fill = clarity)) +
+  geom_bar()
+
+# 2. Download diamond-sizes.qmd from 
+# https://github.com/hadley/r4ds/tree/main/quarto.
+# Add a section that describes the largest 20 diamonds, including a table that
+# displays their most important attributes.
+
+largest <- diamonds |> 
+  arrange(desc(carat)) |> 
+  head(20) |> 
+  select(carat, cut, color, clarity, price)
+largest
+
+# 3. Modify diamond-sizes.qmd to use label_comma() to produce nicely 
+# formatted output. Also include the number of diamonds that are larger than
+# 2.5 carats.
+
+comma(nrow(diamonds))
+comma(nrow(diamonds) - nrow(smaller))
