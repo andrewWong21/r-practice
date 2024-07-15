@@ -32,6 +32,19 @@
 # if fig-width is too small, text will be scaled too large
 # experiment with fig-width and resulting width in document
 
+# set fig-show: hold to show plots after code
+# encourages breaking up large code blocks with explanations
+
+# use fig-cap to add caption to plot
+
+# default graphics type when producing PDF output is PDF
+# produces very large and slow plots if thousands of points are displayed
+# force use of PNGs with fig-format: "png"
+# reduces quality but makes plots more compact
+
+# name code chunks that produce figures, label is used for graphic filename
+# gives plots more descriptive filenames for reuse (e.g. in e-mails)
+
 # -------------------------------------------------------------------------
 
 
