@@ -48,3 +48,31 @@
 # -------------------------------------------------------------------------
 
 
+# 1. Open diamond-sizes.qmd in the visual editor, find an image of a diamond, 
+# copy it, and paste it into the document. Double click on the image and 
+# add a caption. Resize the image and render your document. Observe how the 
+# image is saved in your current working directory.
+
+# file is saved as fig-smaller-diamonds-1.png
+
+
+# 2. Edit the label of the code chunk in diamond-sizes.qmd that generates
+# a plot to start with the prefix fig- and add a caption to the figure with
+# the chunk option fig-cap. Then, edit the text above the code chunk to add a 
+# cross-reference to the figure with Insert > Cross Reference.
+
+
+# 3. Change the size of the figure with the following chunk options, 
+# one at a time, render your document, and describe how the figure changes.
+
+# fig-width: 10
+# figure is wider, text is smaller
+
+# fig-height: 3
+# figure is slightly shorter compared to default
+
+# out-width: "100%"
+# figure is larger, maintains same aspect ratio as default
+
+# out-width: "20%"
+# figure is shrunken to 1/5th the width of the document, very hard to read
