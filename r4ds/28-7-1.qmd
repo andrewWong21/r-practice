@@ -1,0 +1,49 @@
+---
+title: "Diamond sizes"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(tidyverse)
+library(gt)
+
+smaller <- diamonds |> 
+  filter(carat <= 2.5)
+```
+
+We have data about `r nrow(diamonds)` diamonds. Only `r nrow(diamonds) - nrow(smaller)` are larger than 2.5 carats. The distribution of the remainder is shown below:
+
+```{r}
+#| label: plot-smaller-diamonds
+#| echo: false
+
+smaller |> 
+  ggplot(aes(x = carat)) + 
+  geom_freqpoly(binwidth = 0.01)
+```
+
+```{r}
+diamonds |> 
+  head(5) |> 
+  knitr::kable()
+
+```
+
+```{r}
+diamonds |> 
+  head(5) |> 
+  gt::gt()
+```
+
+Cross-reference to table in @tbl-diamonds:
+
+```{r}
+#| label: tbl-diamonds
+#| tbl-cap: "First 5 rows of diamonds data frame"
+diamonds |> 
+  head(5) |> 
+  knitr::kable()
+```
