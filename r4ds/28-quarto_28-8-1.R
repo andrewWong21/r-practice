@@ -43,3 +43,9 @@
 
 # -------------------------------------------------------------------------
 
+# 1. Set up a network of chunks where d depends on c and b, and
+# both b and c depend on a. Have each chunk print lubridate::now(),
+# then verify your understanding of caching.
+
+# b and c have the same timestamp, may be the same as or after timestamp in a
+# d may have the same or later timestamp than b and c

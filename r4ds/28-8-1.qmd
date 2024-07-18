@@ -1,0 +1,40 @@
+---
+title: "28.8.1 Exercises"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: a
+#| cache: true
+var_a <- 3
+var_a
+lubridate::now()
+```
+
+```{r}
+#| label: b
+#| cache: true
+#| dependson: "a"
+var_b <- 2 * var_a
+var_b
+lubridate::now()
+```
+
+```{r}
+#| label: c
+#| cache: true
+#| dependson: "a"
+var_c <- -3 * var_a
+var_c
+lubridate::now()
+```
+
+```{r}
+#| label: d
+#| cache: true
+#| dependson: c("b", "c")
+var_d <- 4 * var_b - 5 * var_c
+var_d
+lubridate::now()
+```
