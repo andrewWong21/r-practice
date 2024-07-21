@@ -13,3 +13,19 @@
 
 # troubleshoot chunks by including error: true option
 # and using print() and str() to verify expected code behavior
+
+# tweak parameters of YAML header to control other document settings
+# YAML - YAML Ain't Markup Language, designed for 
+# easily human-readable/writeable representations of hierarchical data
+
+# HTML documents often have external dependencies in the form of
+# images (JPG, PNG, etc.), stylesheets (CSS), and scripts (JS)
+# Quarto places dependencies in _files folder in same directory as .qmd
+# dependencies are published with document when published on hosting platform
+
+# format:
+#   html:
+#     embed-resources: true
+# creates a self-contained file that does not require external files
+# or internet access to be displayed properly in a browser
+# convenient form for sharing reports with others via email
