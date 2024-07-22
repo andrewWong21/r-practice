@@ -14,6 +14,7 @@
 # troubleshoot chunks by including error: true option
 # and using print() and str() to verify expected code behavior
 
+# Quarto uses YAML to control details of output document
 # tweak parameters of YAML header to control other document settings
 # YAML - YAML Ain't Markup Language, designed for 
 # easily human-readable/writeable representations of hierarchical data
@@ -29,3 +30,13 @@
 # creates a self-contained file that does not require external files
 # or internet access to be displayed properly in a browser
 # convenient form for sharing reports with others via email
+
+# include parameters in report which set values for inputs when running code
+# declare parameter using params field
+
+# use params in code by treating params as named list
+
+# params:
+#   my_class: "suv"
+
+# ```r class <- mpg |> filter(class == params$my_class)```
