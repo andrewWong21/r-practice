@@ -33,10 +33,37 @@
 
 # include parameters in report which set values for inputs when running code
 # declare parameter using params field
-
-# use params in code by treating params as named list
-
 # params:
 #   my_class: "suv"
 
+# use params in code by treating params as named list
 # ```r class <- mpg |> filter(class == params$my_class)```
+
+# can run arbitrary R expressions with !expr prefix before parameter
+# params:
+#   start: !expr lubridate::ymd("2015-01-01")
+#   snapshot: !expr lubridate::ymd_hms("2015-01-01 12:30:00")
+
+# use visual editor to add citations and bibliographies
+# Insert > Citation to add citations from various sources
+# including DOI, Zotero, Crossref, DataCite, PubMed
+
+# representation for citations is [@citation], e.g. [@doe99]
+# visual editor creates and updates bibliography.bib file with citations
+# bibliography field is also added to YAML header with path to file
+
+# separate multiple citations with semicolon [@doe99; @smith04]
+# add comments inside brackets [see @doe99, ch. 1, pp. 33-35]
+# drop brackets for in-text citation: As mentioned in @doe99, ...
+# prefix citation with - to suppress author name if mentioned in text [-@doe99]
+
+# Quarto appends bibliography to end of document when rendering
+# containing cited references from bibliography file without a section heading
+# common practice to end document with custom section header for bibliography
+
+# specify citation style with csl field (Citation Style Language)
+# .csl file may or may not be in the same directory as the .qmd file
+# get CSL style files from https://github.com/citation-style-language/styles
+# bibliography: rmarkdown.bib
+# csl: apa.csl
+ 
