@@ -66,4 +66,37 @@
 # get CSL style files from https://github.com/citation-style-language/styles
 # bibliography: rmarkdown.bib
 # csl: apa.csl
- 
+
+# console and script editor in R is combined in Quarto chunks
+# chunk workflow - edit and re-execute chunk with Ctrl+Shift+Enter
+# until satisfied, then move on to next code chunk
+
+# Quarto integrates both prose and code into one document
+# analysis notebook allows for developing code and recording thoughts
+# records what was done and why to achieve goals in analysis
+# supports strong analysis by encouraging continuous reflection on thoughts
+# makes sharing and explaining work with colleagues easier 
+
+# tips for workflow:
+
+# give notebooks descriptive titles, evocative file names,
+# and first paragraphs briefly introducing aims of analysis
+
+# use YAML header date field to record start date in YYYY-MM-DD ISO8601 format
+#   date: 2024-03-01
+
+# keep dead end analysis ideas in notebook and write notes about failure
+
+# use tibble::tribble() for data entry in R, not intended as main entry tool
+
+# write code with explanatory comments to correct value errors in data files
+# instead of directly modifying data files
+
+# clear cache and ensure proper rendering before ending work session
+
+# track versions of package dependencies for long-term reproducibility
+# renv https://rstudio.github.io/renv/index.html
+# for storing packages in project directory
+# include sessionInfo() in one chunk to get package info at current time
+
+# store analysis notebooks in individual projects with good naming schemes
