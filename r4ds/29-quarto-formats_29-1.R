@@ -55,3 +55,29 @@ quarto::quarto_render("diamond-sizes.qmd", output_format = "all")
 # Quarto supports presentation formats including
 # revealjs (HTML), pptx (PowerPoint), beamer (PDF with LaTeX Beamer)
 # read more at https://quarto.org/docs/presentations/
+
+# interactive components can be included within HTML documents
+# htmlwidgets and Shiny are two options for providing these elements
+
+# htmlwidgets is a package that provides functions
+# for creating interactive visualizations
+
+# details are wrapped inside package
+# no prior experience with HTML or JavaScript is needed to use widgets
+
+# dygraphs for interactive visualizations of time series data
+# DT for interactive tables
+# threeJS for interactive 3D plots
+# DiagrammeR for graph diagrams like flow charts and node-link diagrams
+
+# htmlwidgets provide client-side interactivity
+# allows for HTML distribution without connections to R
+# but limits capabilities to HTML and JavaScript
+
+# Shiny allows for server-side interactivity via R
+# add server: shiny to YAML header to call Shiny code
+# use input functions to add interactive components
+
+# requires a public-facing Shiny server to publish and run online
+# private server is automatically set up when running on own computer
+# read more about Shiny at https://mastering-shiny.org/
