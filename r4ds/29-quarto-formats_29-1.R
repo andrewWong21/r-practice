@@ -81,3 +81,54 @@ quarto::quarto_render("diamond-sizes.qmd", output_format = "all")
 # requires a public-facing Shiny server to publish and run online
 # private server is automatically set up when running on own computer
 # read more about Shiny at https://mastering-shiny.org/
+
+# Quarto can be used to create websites or books
+# put .qmd files in one directory, with index.qmd as home page
+# create YAML file named _quarto.yml and define project type
+# set project type to website or book depending on desired output
+# project:
+#   type: book
+
+# _quarto.yml example for website with three source files
+# project:
+#   type: website
+#
+# website:
+#   title: "A website on color scales"
+#   navbar:
+#     left:
+#       - href: index.qmd
+#         text: Home
+#       - href: viridis-colors.qmd
+#         text: Viridis colors
+#       - href: terrain-colors.qmd
+#         text: Terrain colors
+
+
+# _quarto.yml example for book with four chapters
+# that renders to .html, .pdf, .epub
+# project:
+#   type: website
+#
+# book:
+#   title: "A book on color scales"
+#   author: "Jane Coloriste"
+#   chapters:
+#     - index.qmd
+#     - intro.qmd
+#     - viridis-colors.qmd
+#     - terrain-colors.qmd
+#
+# format:
+#   html:
+#     theme: cosmo
+#   pdf: default
+#   epub: default
+
+# RStudio recognizes project type based on options in _quarto.yml
+# and adds Build tab to render and preview websites and books
+# refer to https://quarto.org/docs/websites and https://quarto.org/docs/books
+
+# other formats  https://quarto.org/docs/output-formats/all-formats.html
+# journal articles https://quarto.org/docs/journals/templates.html
+# Jupyter Notebook https://quarto.org/docs/reference/formats/ipynb.html
