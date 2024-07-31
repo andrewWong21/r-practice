@@ -25,6 +25,20 @@ y <- x
 obj_addr(x)
 obj_addr(y)
 
+# syntactic names must only contain numbers, letters, digits, and underscores
+# but cannot start with underscores or digits
+
+# current locale determines whether certain symbols are letters
+# R files that run on one computer may not run on another with different locale
+# recommended to use ASCII characters only when naming objects
+
+# reserved words like if, NA, function, NULL cannot be used as names
+# error is thrown when attempting to use reserved words as names
+# view reserved words with ?Reserved
+
+# rules can be overridden by surrounding otherwise invalid names with backticks
+# data created outside of R may contain non-syntactic names when loaded
+
 # situations where R makes copies
 
 # memory occupied by objects
