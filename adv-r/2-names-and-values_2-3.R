@@ -72,3 +72,49 @@ lobstr::ref(d1, d2)
 d3 <- d1
 d3[1, ] <- d3[1, ] * 3
 lobstr::ref(d1, d3)
+
+# -------------------------------------------------------------------------
+
+# 1. Why is tracemem(1:10) not helpful?
+tracemem(1:10)
+tracemem(1:10)
+
+# tracemem is meant to be used with names bound to objects
+# tracemem(1:10) calls the function on an object with no name binding
+# so there is no way to refer to the same object again in later code
+# running the statement again results in a different address
+
+
+# 2. Explain why tracemem() shows two copies when you run this code.
+x <- c(1L, 2L, 3L)
+tracemem(x)
+
+x[[3]] <- 4
+
+# The statement after running tracemem() modifies the vector x, creating a copy.
+# The object referenced by x[[3]] is also modified, which creates a copy.
+
+
+# 3. Sketch out the relationship between the following objects:
+a <- 1:10
+b <- list(a, a)
+c <- list(b, a, 1:10)
+
+lobstr::ref(a)
+lobstr::ref(b)
+lobstr::ref(c)
+# b has two references to a
+# c has one direct reference to a 
+# and a reference to b, itself containing two references to a
+
+
+# 4. What happens when you run this code?
+x <- list(1:10)
+tracemem(x)
+x[[2]] <- x
+x
+lobstr::ref(x)
+
+# x is initially bound to an integer list
+# modification of element at index 2 creates a copy of the list
+# x points to a new list, original list has no name bound to it
