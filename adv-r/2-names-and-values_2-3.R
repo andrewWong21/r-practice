@@ -91,6 +91,7 @@ tracemem(x)
 
 x[[3]] <- 4
 
+# L suffix is used to denote integers rather than doubles.
 # The statement after running tracemem() modifies the vector x, creating a copy.
 # The object referenced by x[[3]] is also modified, which creates a copy.
 
@@ -115,6 +116,7 @@ x[[2]] <- x
 x
 lobstr::ref(x)
 
-# x is initially bound to an integer list
+# x is initially bound to a list object referencing an integer vector
 # modification of element at index 2 creates a copy of the list
-# x points to a new list, original list has no name bound to it
+# x is bound to copy of list object so x now points to a new list
+# second element of x points to original list, has no name bound to it
