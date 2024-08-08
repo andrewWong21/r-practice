@@ -1,4 +1,5 @@
 library("lobstr")
+
 # two exceptions to copy-on-modify, resulting in in-place modification instead
 # objects with a single name bound to them are modified in-place
 # environments are always modified in-place
@@ -47,3 +48,49 @@ for (i in 1:5){
 
 # easy to determine when a copy is being made, hard to prevent it
 # rewriting functions in C++ may be a feasible solution to avoid copies
+
+# environments are always modified in place, covered further in chapter 7
+# reference semantics - any existing bindings to a given environment
+# continue to have the same reference even after the environment is modified
+
+e1 <- rlang::env(a = 1, b = 2, c = 3)
+e2 <- e1
+
+# modifying the value bound to c in e1, accessing modified value from e2
+e1$c <- 4
+e2$c
+
+# use behavior to build functions that "remember" previous states
+
+# environments may contain themselves
+e <- rlang::env()
+e$self <- e
+ref(e)
+
+# garbage collector frees up memory by deleting unused objects
+# R uses tracing garbage collector, identifying reachable objects
+# from global environment by recursively searching references
+
+# GC runs automatically whenever more memory is needed for new object
+# use gcinfo(TRUE) to get messages printed when garbage collector runs
+
+# can force garbage collection with gc(), but not needed
+# may be desirable for returning memory to OS for other programs
+# or finding out how much memory is currently being used by R
+gc()
+
+# lobstr::mem_used() is a wrapper around gc(), prints total bytes used
+mem_used()
+
+# numbers differ between the two functions for a few reasons
+
+# mem_used() includes objects created by R but not by the R interpreter
+
+# R and OS do not reclaim memory until actually needed
+# R may still hold on to memory until OS asks for it back
+
+# memory fragmentation - gaps between objects in memory
+# created as a result of deleted objects
+
+# -------------------------------------------------------------------------
+
