@@ -94,3 +94,102 @@ mem_used()
 
 # -------------------------------------------------------------------------
 
+# 1. Explain why the following code doesn’t create a circular list.
+x <- list()
+obj_addr(x)
+tracemem(x)
+x[[1]] <- x
+obj_addr(x)
+obj_addr(x[[1]])
+
+# list is copied on modification, so x points to copy
+# and x[[1]] points to original empty list, x before modification
+
+# 2. Wrap the two methods for subtracting medians into two functions,
+# then use the bench package to carefully compare their speeds.
+# How does performance change as the number of columns increase?
+
+# function for creating random dataframe
+create_random_df <- function(nrow, ncol) {
+  random_matrix <- matrix(runif(nrow * ncol), nrow = nrow)
+  as.data.frame(random_matrix)
+}
+
+# subtract medians from data frame column
+subtract_df <- function(x, medians) {
+  for (i in seq_along(medians)) {
+    x[[i]] <- x[[i]] - medians[[i]]
+  }
+  x
+}
+
+# subtract medians from list
+subtract_list <- function(x, medians) {
+  x <- as.list(x)
+  x <- subtract_df(x, medians)
+  list2DF(x)
+}
+
+benchmark_medians <- function(ncol) {
+  df <- create_random_df(nrow = 1e4, ncol = ncol)
+  medians <- vapply(df, median, numeric(1), USE.NAMES = FALSE)
+  
+  bench::mark(
+    "data frame" = subtract_df(df, medians),
+    "list" = subtract_list(df, medians),
+    time_unit = "ms"
+  )
+}
+
+benchmark_medians(1)
+
+results <- bench::press(
+  ncol = c(1, 10, 50, 100, 250, 300, 400, 500, 750, 1000),
+  benchmark_medians(ncol)
+)
+
+library(ggplot2)
+
+ggplot(
+  results,
+  aes(ncol, median, col = attr(expression, "description"))
+) +
+  geom_point(size = 2) +
+  geom_smooth() +
+  labs(
+    x = "Number of Columns",
+    y = "Execution Time (ms)",
+    colour = "Data Structure"
+  ) +
+  theme(legend.position = "top")
+
+# execution time is slower when working with data frames directly
+# as number of columns increases
+
+# 3. What happens if you attempt to use tracemem() on an environment?
+e <- rlang::env()
+tracemem(e)
+
+# error is thrown - tracemem is not useful for environment objects
+# this is because environment objects are always modified in-place
+
+# Quiz answers
+
+# 1. Use backticks to quote non-syntactic names.
+df <- data.frame(runif(3), runif(3))
+names(df) <- c(1, 2)
+
+df$`3` <- df$`1` + df$`2`
+df
+
+
+# 2. y is about 8 MB.
+x <- runif(1e6)
+y <- list(x, x, x)
+obj_size(y)
+
+# 3. a is copied when b is modified.
+a <- c(1, 5, 3, 2)
+tracemem(a)
+b <- a
+b[[1]] <- 10
