@@ -102,3 +102,35 @@ NA
 NA_integer_
 NA_real_
 NA_character_
+
+# can test if vector is of given type with is.*()
+# is.logical(), is.integer(), is.double(), is.character()
+is.logical(lgl_var)
+is.integer(int_var)
+is.double(dbl_var)
+is.character(chr_var)
+
+# avoid is.vector(), is.atomic(), is.numeric() due to caveats
+
+# type is property of entire atomic vector
+# combining different types coerces them in a fixed order
+# character -> double -> integer -> logical
+
+# e.g. combining character and integer yields character
+str(c("a", 1))
+
+# mathematical functions typically coerce to numeric
+# useful for logical vectors, coercing TRUE to 1 and FALSE to 0
+x <- c(FALSE, FALSE, TRUE)
+as.numeric(x)
+
+sum(x)
+
+mean(x)
+
+# deliberate coercion can be performed with as.*()
+# as.logical(), as.integer(), as.double(), as.character()
+# if coercion fails, result is missing value and warning is generated
+as.integer(c("1", "1.5", "a"))
+
+# -------------------------------------------------------------------------
