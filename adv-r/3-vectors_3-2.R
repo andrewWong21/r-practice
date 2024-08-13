@@ -134,3 +134,52 @@ mean(x)
 as.integer(c("1", "1.5", "a"))
 
 # -------------------------------------------------------------------------
+
+# 1. How do you create raw and complex scalars?
+xx <- raw(2)
+xx
+
+raw(1)
+
+# use as.raw() to coerce a numeric argument to raw type
+# or charToRaw() for character arguments
+xx[1] <- as.raw(40)
+xx
+
+xx[2] <- charToRaw("A")
+xx
+
+# complex() constructor takes length, real, and imaginary parts
+complex(length.out = 2, real = c(1, 2), imaginary = c(3, 4))
+complex(length.out = 1, real = 3, imaginary = -7)
+
+# can create imaginary numbers without real parts
+complex(length.out = 1, real = 0, imaginary = 2)
+
+
+# 2. Test your knowledge of the vector coercion rules by predicting the output
+# of the following uses of c():
+c(1, FALSE)
+c("a", 1)
+c(TRUE, 1L)
+
+
+# 3. Why is 1 == "1" true? Why is -1 < FALSE true? Why is "one" < 2 false?
+
+# 1 == "1" is true
+c(1, "1")
+
+# -1 < FALSE is true
+c(-1, FALSE)
+
+# "one" < 2 is false
+c("one", 2)
+
+
+# 4. Why is the default missing value, NA, a logical vector?
+# What's special about logical vectors?
+
+c(FALSE, NA_character_)
+
+
+# 5. Precisely what do is.atomic(), is.numeric(), and is.vector() test for?
