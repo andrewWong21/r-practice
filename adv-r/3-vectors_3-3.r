@@ -21,3 +21,14 @@ a <- structure(
   y = 4:6
 )
 str(attributes(a))
+
+# most attributes are generally lost following operations
+# only names (character vector for names of elements) 
+# and dims (integer vector for dimensions) are routinely preserved
+
+# vectors can be named during creation, by assigning names, 
+# or applying them inline with setNames()
+x <- c(a = 1, b = 2, c = 3)
+x <- 1:3
+names(x) <- c("a", "b", "c")
+x <- setNames(1:3, c("a", "b", "c"))
