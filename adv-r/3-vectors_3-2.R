@@ -159,27 +159,64 @@ complex(length.out = 1, real = 0, imaginary = 2)
 
 # 2. Test your knowledge of the vector coercion rules by predicting the output
 # of the following uses of c():
+
+# FALSE is coerced to double
 c(1, FALSE)
+typeof(c(1, FALSE))
+
+# 1 is coerced to character
 c("a", 1)
+typeof(c("a", 1))
+
+# TRUE is coerced to integer
 c(TRUE, 1L)
+typeof(c(TRUE, 1L))
 
 
 # 3. Why is 1 == "1" true? Why is -1 < FALSE true? Why is "one" < 2 false?
 
 # 1 == "1" is true
+# 1 is coerced to character, "1" == "1" is true
+1 == "1"
 c(1, "1")
+typeof(c(1, "1"))
 
 # -1 < FALSE is true
+# FALSE is coerced to double, -1 < 0 is true
+-1 < FALSE
 c(-1, FALSE)
+typeof(c(-1, FALSE))
 
 # "one" < 2 is false
+# 2 is coerced to character, "one" < "2" is false
+"one" < 2
 c("one", 2)
+typeof(c("one", 2))
 
 
 # 4. Why is the default missing value, NA, a logical vector?
 # What's special about logical vectors?
 
 c(FALSE, NA_character_)
+typeof(c(FALSE, NA_character_))
+
+c(FALSE, NA_integer_)
+typeof(c(FALSE, NA_integer_))
+
+c(FALSE, NA_real_)
+typeof(c(FALSE, NA_real_))
+
+c(FALSE, NA)
+typeof(c(FALSE, NA))
+
+# NA is a logical vector so it does not forcefully coerce non-missing values
+# logical vectors can be coerced to other atomic types
+# (integer, double, character)
 
 
 # 5. Precisely what do is.atomic(), is.numeric(), and is.vector() test for?
+
+# is.atomic returns TRUE if x is an atomic vector or NULL
+# is.numeric returns TRUE if x is of type double or integer and not a factor
+# is.vector returns TRUE if x is an atomic vector
+# or a list or expression with no non-name attributes
