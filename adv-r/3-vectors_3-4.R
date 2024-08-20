@@ -38,3 +38,39 @@ grade
 # factors look like strings, but are built on top of integers
 # string methods may coerce to strings, use integer values, or throw an error
 # recommended to explicitly convert to strings if string behavior is needed
+
+# date vectors are double vectors with class "Date"
+today <- Sys.Date()
+today
+
+typeof(today)
+attributes(today)
+
+# value of double stored is number of days since January 1, 1970
+date <- as.Date("1970-02-01")
+date
+unclass(date)
+
+# date-times may be stored as POSIXct or POSIXlt format in base R
+# POSIX - Portable Operating System Interface
+# ct - calendar time, lt - local time
+# POSIXct is more appropriate for use in data frames
+
+# POSIXct vectors are double vectors
+# value is number of seconds since Unix epoch 1970-01-01
+now_ct <- as.POSIXct("2024-08-01 22:00", tz = "UTC")
+now_ct
+
+typeof(now_ct)
+attributes(now_ct)
+unclass(now_ct)
+
+# changing tzone only affects format of date-time, does not change time instant
+# time is not printed if midnight
+structure(now_ct, tzone = "Asia/Tokyo")
+structure(now_ct, tzone = "America/New_York")
+structure(now_ct, tzone = "Australia/Lord_Howe")
+structure(now_ct, tzone = "Europe/Paris")
+
+# -------------------------------------------------------------------------
+
