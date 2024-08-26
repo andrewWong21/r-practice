@@ -24,7 +24,14 @@ ncol(df1)
 
 # tibbles are often used to overcome issues with design decisions of data frames
 # "lazy and surly" - tibbles do less and complain more
+
+# using tibbles requires tibble package
 library(tibble)
+
+# tibbles have multiple classes - "data.frame", "tbl", "tbl_df"
+# but share same overall structure with data frames
+attributes(tibble())
+attributes(data.frame())
 
 df2 <- tibble(x = 1:3, y = letters[1:3])
 typeof(df2)
@@ -53,3 +60,20 @@ df2 <- tibble(
   y = c("a", "b", "c")
 )
 str(df2)
+
+# data frames allow for naming rows
+df3 <- data.frame(
+  age = c(35, 27, 18),
+  hair = c("blond", "brown", "black"),
+  row.names = c("Bob", "Susan", "Sam")
+)
+df3
+
+# row names can be modified and retrieved with rownames()
+rownames(df3)
+
+# row names can also be used for subsetting data frames
+df3["Bob", ]
+
+# differences in structure between matrices and data frames
+# make the usage of row names undesirable
