@@ -77,3 +77,26 @@ df3["Bob", ]
 
 # differences in structure between matrices and data frames
 # make the usage of row names undesirable
+# matrices are transposable while data frames are not
+# rows and columns of data frames cannot be interchanged
+
+# metadata should not be stored in a different way from rest of data
+# tools for working with column names cannot also be used for row names
+
+# row labels are only useful when rows can be identified by single strings
+# rows may be identified with non-character vectors or multiple vectors
+
+# row names must be unique, transformations with row duplications will
+# generate rows with different names, making consistent row matching difficult
+
+df3[c(1, 1, 1), ]
+
+# tibbles do not support row names
+# but provide tools for converting to column names
+# using either rownames_to_column() or rownames argument in as_tibble()
+
+# tibbles show first 10 rows and all columns that can fit on screen
+# remaining columns are shown at bottom of display
+# column types are provided, abbreviated to 3 or 4 letters
+# wide columns are truncated and color may be used in console environments
+dplyr::starwars
