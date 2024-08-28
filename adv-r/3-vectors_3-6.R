@@ -100,3 +100,39 @@ df3[c(1, 1, 1), ]
 # column types are provided, abbreviated to 3 or 4 letters
 # wide columns are truncated and color may be used in console environments
 dplyr::starwars
+
+# data frames and tibbles can be subsetted into 1D or 2D structures
+# to behave like lists or matrices, respectively
+
+# certain behaviors of subsetting data frames may be undesirable
+
+# subsetting columns with df[, vars] results in a vector if one variable
+# is selected with vars, else a data frame is returned if multiple are selected
+
+# extracting columns with df$x will return any variables prefixed with x
+# if no variable exactly matching x exists
+# if no variables with prefix x exist, df$x will return NULL
+
+# tibbles always return a tibble when subsetting with []
+# when working with $, no partial matching occurs and a warning is generated
+# when attempting to subset a tibble with a nonexistent variable
+
+df1 <- data.frame(xyz = "a")
+df2 <- tibble(xyz = "a")
+df1$x
+df2$x
+
+# use [[]] to extract single columns from data frames and tibbles
+# in case a data frame output with [] is not desired
+
+# test if an object is a data frame with is.data.frame()
+# since tibbles are also data frames, it will return TRUE for tibbles
+is.data.frame(df1)
+is.data.frame(df2)
+
+# use is_tibble() to check for tibbles in cases where it is important
+is_tibble(df1)
+is_tibble(df2)
+
+# any objects can be placed in a data frame
+# a data frame is a list of vectors, so a column of a data frame can be a list
