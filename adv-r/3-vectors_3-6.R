@@ -134,5 +134,56 @@ is.data.frame(df2)
 is_tibble(df1)
 is_tibble(df2)
 
-# any objects can be placed in a data frame
 # a data frame is a list of vectors, so a column of a data frame can be a list
+# since a list can contain any object, any object can be placed in a data frame
+# related objects can be kept in the same row regardless of complexity
+
+# list columns can be added to data frames after creation
+# or wrapped in I() (identity function) during creation
+df <- data.frame(x = 1:3)
+df$y <- list(1:2, 1:3, 1:4)
+df
+
+data.frame(
+  x = 1:3,
+  y = I(list(1:2, 1:3, 1:4))
+)
+
+# list columns can be included directly inside tibble(), have tidier printing
+tibble(
+  x = 1:3,
+  y = list(1:2, 1:3, 1:4)
+)
+
+# data frame columns can also be arrays or matrices
+# if number of rows matches data frame - NROW() must be equal for each column
+
+# same with list-columns: wrap with I() during creation or add after creation
+dfm <- data.frame(
+  x = 1:3 * 10
+)
+dfm
+
+dfm$y <- matrix(1:9, nrow = 3)
+dfm
+
+dfm$z <- data.frame(a = 3:1, b = letters[1:3], stringsAsFactors = FALSE)
+dfm
+
+# many functions for data frames assume vector columns
+# printed displays can be confusing for 
+# data frames with matrix and data frame columns
+dfm
+dfm[1, ]
+
+# -------------------------------------------------------------------------
+
+# 1. Can you have a data frame with zero rows and zero columns?
+
+# 2. What happens if you attempt to set rownames that are not unique?
+
+# 3. If df is a data frame, what can you say about t(df), and t(t(df))?
+# Perform some experiments, making sure to try different column types.
+
+# 4. What does as.matrix() do when applied to a data frame with columns of 
+# different types? How does it differ from data.matrix()?
