@@ -176,14 +176,82 @@ dfm
 dfm
 dfm[1, ]
 
+# NULL is a special value with unique type
+# always length zero, cannot have any attributes
+typeof(NULL)
+length(NULL)
+
+x <- NULL
+attributes(x)
+attr(x, "name") <- "a"
+
+# test for NULL with is.null()
+is.null(NULL)
+is.null(c())
+is.null(0)
+
+# NULL can represent empty vector, c() without arguments results in NULL
+# or represent absent vector as a default function argument
+
+# four common types of atomic vectors are logical, integer, double, character
+
+# attributes provide metadata for object
+# get/set individually with attr(x, "name") or all at once with attributes(x)
+
+# lists can have elements of different types, vectors must have only one type
+# matrices have elements of the same type, data frames can have different types
+
+# create list-array by assigning dimensions to a list
+
+# tibbles do not coerce strings to factors and have stricter subsetting rules
+
 # -------------------------------------------------------------------------
 
 # 1. Can you have a data frame with zero rows and zero columns?
 
+# calling data.frame() with no arguments creates a data frame
+# with zero rows and zero columns
+data.frame()
+
+
 # 2. What happens if you attempt to set rownames that are not unique?
+
+dfx <- data.frame(
+  x = c(1, 2, 3), 
+  y = c("a", "b", "c"), 
+  z = c(TRUE, TRUE, FALSE),
+  m = c(1L, 5L, 2L)
+)
+dfx
+
+# duplicate row names are not allowed in data frames
+row.names(dfx) <- c("x", "y", "y")
+
 
 # 3. If df is a data frame, what can you say about t(df), and t(t(df))?
 # Perform some experiments, making sure to try different column types.
 
+# the transpose of a data frame is a matrix
+t(dfx)
+is.data.frame(t(dfx))
+is.matrix(t(dfx))
+
+# the transpose of the transpose of a data frame is also a matrix
+# result has same dimensions as original data frame
+# all columns are coerced to the same type
+t(t(dfx))
+is.data.frame(t(t(dfx)))
+is.matrix(t(t(dfx)))
+
+
 # 4. What does as.matrix() do when applied to a data frame with columns of 
 # different types? How does it differ from data.matrix()?
+
+# as.matrix coerces columns into character vectors
+# if original columns were all atomic vectors
+as.matrix(dfx)
+typeof(as.matrix(dfx))
+
+# data.matrix() returns a numeric matrix
+data.matrix(dfx)
+typeof(data.matrix(dfx))
