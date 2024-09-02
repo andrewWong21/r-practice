@@ -84,3 +84,50 @@ z[c("a", "d")]
 
 # avoid subsetting with factors - underlying integer value will be used instead
 y[factor("b")]
+
+# subsetting lists works similarly to atomic vectors
+# [] returns a list, [[]] and $ will extract specified elements
+
+# higher-dimensional structures like arrays and matrices
+# allow subsetting with one or more vectors, or a matrix
+
+a <- matrix(1:9, nrow = 3)
+colnames(a) <- c("A", "B", "C")
+a
+
+# 1D subsetting can be generalized for matrices and arrays
+# by supplying comma-separated 1D indices for each dimension
+
+# blank subsetting allows keeping all rows or columns
+# retrieve first and second rows, all columns
+a[1:2, ]
+
+# retrieve first and third rows, ordered by second then first column
+a[c(TRUE, FALSE, TRUE), c("B", "A")]
+
+a[0, -2]
+
+# [] simplifies results to lowest possible dimensionality
+# which means some results may be outputted in 1D vector form
+a[1, ]
+a[1, 1]
+
+# matrices and arrays can be subsetted with a single 1D vector
+vals <- outer(1:5, 1:5, FUN = "paste", sep = ",")
+vals
+
+# arrays are stored in column-major order
+# return 4th and 15th values in matrix
+vals[c(4, 15)]
+
+# higher-dimensional data structures can be subsetted with an integer matrix
+# character matrices can also be used in cases of named structures
+
+# rows represent locations of values, columns correspond to dimensions
+# generalization - n-column matrix for subsetting n-dimensional structure
+select <- matrix(ncol = 2, byrow = TRUE, c(
+  1, 1,
+  3, 1,
+  2, 4
+))
+vals[select]
