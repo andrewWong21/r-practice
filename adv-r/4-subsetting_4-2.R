@@ -131,3 +131,57 @@ select <- matrix(ncol = 2, byrow = TRUE, c(
   2, 4
 ))
 vals[select]
+
+# data frames behave like lists when subsetting with single indices
+# using indices to select columns
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df
+
+# select first two columns
+df[1:2]
+
+# select rows where x = 2
+df[df$x == 2, ]
+
+# select rows 1 and 3
+df[c(1, 3), ]
+
+# select first 3 rows
+df[1:3, ]
+
+# columns can be selected from a data frame like a list
+df[c("x", "z")]
+
+# or like a matrix
+df[, c("x", "z")]
+
+# when selecting single columns, matrix subsetting simplifies output
+str(df[, "x"])
+# list subsetting a single column of a data frame returns another data frame
+str(df["x"])
+
+# subsetting a tibble always returns a tibble regardless of subsetting type
+df2 <- tibble::tibble(df)
+df2
+
+str(df2["x"])
+str(df2[, "x"])
+
+# subsetting matrices and data frames with a single number, name, or
+# logical vector with a single TRUE will return lower dimensions by default
+# use drop = FALSE to maintain original dimensionality in output
+# recommended to specify explicitly when writing functions with 2D objects
+
+# dimensions of length 1 will be dropped for matrices and arrays
+a <- matrix(1:4, nrow = 2)
+str(a[1, ])
+str(a[1, , drop = FALSE])
+
+# data frames with single columns will return column contents
+df3 <- data.frame(a = 1:2, b = 1:2)
+str(df3[, "a"])
+str(df3[, "a", drop = FALSE])
+
+# tibbles default to drop = FALSE
+
+# -------------------------------------------------------------------------
