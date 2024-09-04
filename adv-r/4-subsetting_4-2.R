@@ -185,3 +185,78 @@ str(df3[, "a", drop = FALSE])
 # tibbles default to drop = FALSE
 
 # -------------------------------------------------------------------------
+
+# 1. Fix each of the following common data frame subsetting errors:
+
+mtcars[mtcars$cyl == 4, ] # use == for equality
+
+# negative numbers may only be mixed with 0
+mtcars[1:4, ]   # return first 4 rows
+mtcars[-1:-4, ] # return everything except first 4 rows
+
+# provide comma and leave column index blank to retrieve all columns
+mtcars[mtcars$cyl <= 5, ]
+
+# compound booleans must be explicitly written out
+mtcars[mtcars$cyl == 4 | mtcars$cyl == 6, ]
+
+
+# 2. Why does the following code yield five missing values?
+# Why is it different from x[NA_real_]?
+
+# NA is a logical vector, so it is recycled to match the length of x
+x <- 1:5
+x[NA]
+
+# using a missing value of numeric type returns a single missing value instead
+x[NA_real_]
+
+
+# 3. What does upper.tri() return?
+
+# upper.tri() returns a logical matrix with all entries above the main diagonal
+# set to TRUE, while the main diagonal and everything below it is FALSE
+m <- matrix(1:25, nrow = 5)
+m
+upper.tri(m)
+
+
+# 4. Why does mtcars[1:20] return an error?
+# How does it differ from the similar statement mtcars[1:20, ]?
+
+# supplying a single index to a dataframe subset applies it to the columns
+# mtcars has less than 20 columns so it returns an error
+mtcars[1:20]
+
+# at most 11 (all) columns can be selected from mtcars without an error
+mtcars[1:5]
+
+# the following statement retrieves the first 20 rows
+mtcars[1:20, ]
+
+
+# 5. Implement your own function that extracts the diagonal entries from
+# a matrix (it should work like diag(x) where x is a matrix).
+
+my_diag <- function(x){
+  n <- min(nrow(x), ncol(x))
+  idx <- cbind(1:n, 1:n)
+  x[idx]
+}
+
+diag(m)
+my_diag(m)
+
+m2 <- matrix(1:49, nrow = 7)
+diag(m2)
+my_diag(m2)
+
+
+# 6. What does df[is.na(df)] <- 0 do? How does it work?
+
+# is.na(df) returns a logical matrix encoding TRUE at corresponding positions
+# in the original data frame with missing values
+
+# df[is.na(df)] subsets all positions with missing values in the data frame
+
+# df[is.na(df)] <- 0 assigns 0 to all positions of missing values in df
