@@ -71,4 +71,53 @@ purrr::pluck(x, "a", 1)
 purrr::pluck(x, "c", 1)
 purrr::pluck(x, "c", 1, .default = NA)
 
+# @ and slot() are used for S4 objects
+# @ is equivalent to $, returns an error if slot does not exist
+# slot() is equivalent to [[]]
+
 # -------------------------------------------------------------------------
+
+# 1. Brainstorm as many ways as possible to extract
+# the third value from the cyl variable in the mtcars dataset.
+
+# subset second column as a vector, then extract third value in column
+mtcars$cyl[[3]]
+mtcars[["cyl"]][[3]]
+mtcars[, "cyl"][[3]]
+
+mtcars[[2]][[3]]
+mtcars[, 2][[3]]
+mtcars[[c(2, 3)]]
+
+# subset second column as a data frame, then extract third value in column
+mtcars["cyl"][3, ]
+mtcars[2][3, ]
+
+# subset third row as a data frame, then extract second value in row
+mtcars[3, ]$cyl
+mtcars[3, ][["cyl"]]
+mtcars[3, ][, "cyl"]
+mtcars[3, "cyl"]
+
+mtcars[3, ][[2]]
+mtcars[3, ][, 2]
+mtcars[3, 2]
+
+
+# 2. Given a linear model, e.g. mod <- lm(mpg ~ wt, data = mtcars),
+# extract the residual degrees of freedom.
+# Then extract the R squared from the model summary - summary(mod)
+mod <- lm(mpg ~ wt, data = mtcars)
+summary(mod)
+
+typeof(mod)
+str(mod)
+
+mod$df.residual
+mod[["df.residual"]]
+
+typeof(summary(mod))
+str(summary(mod))
+
+summary(mod)$r.squared
+summary(mod)[["r.squared"]]
