@@ -43,3 +43,32 @@ x$a
 # or using tibbles in place of data frames, which do not allow partial matching
 options(warnPartialMatchDollar = TRUE)
 x$a
+
+# [[]] has different behaviors with invalid indices depending on
+# whether the structure is an atomic vector, a list, or NULL
+# and whether the subset involves zero-length, out-of-bounds, or missing values
+
+# atomic vectors return errors for all "invalid" indices
+# zero-length objects, OOB int or char values, missing values
+
+# lists return NULL for OOB char and missing values, and errors otherwise
+
+# NULL objects always return NULL for any invalid indices
+
+# purrr::pluck() and purrr::chuck() were developed to standardize behavior
+# pluck() always returns NULL or specified .default argument value
+# chuck() always throws an error for missing elements
+x <- list(
+  a = list(1, 2, 3),
+  b = list(3, 4, 5)
+)
+x
+
+# pluck() is useful for indexing deeply nested data structures
+# allows mixing of both integer and character indices
+# and customizable default values for missing elements
+purrr::pluck(x, "a", 1)
+purrr::pluck(x, "c", 1)
+purrr::pluck(x, "c", 1, .default = NA)
+
+# -------------------------------------------------------------------------
