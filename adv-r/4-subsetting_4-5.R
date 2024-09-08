@@ -52,3 +52,45 @@ info <- data.frame(
 id <- match(grades, info$grade)
 id
 info[id, ]
+
+# use integer indices to bootstrap or randomly sample a data frame
+# sample(n) generates a random permutation of 1:n
+df <- data.frame(x = c(1, 2, 3, 1, 2), y = 5:1, z = letters[1:5])
+df
+
+# randomly reorder rows of data frame
+df[sample(nrow(df)), ]
+
+# select 3 random rows without replacement
+df[sample(nrow(df), 3), ]
+
+# select 6 random rows with replacement
+df[sample(nrow(df), 6, replace = TRUE), ]
+
+# sample(x, size, replace = FALSE)
+# select size samples from x without replacement (samples are only picked once)
+# if replace = FALSE, size must be less than or equal to population size
+
+# order(x) returns integer vector showing how x is ordered
+# order(x)[i] is current index of element that should be at x[i] if ordered
+# x[order(x)] returns sorted x
+x <- c("b", "c", "a")
+order(x)
+x[order(x)]
+
+# can use additional variables to break ties or specify decreasing = TRUE/FALSE
+# missing values are placed at end by default, can remove with na.last = NA
+# missing values can be placed at the front with na.last = FALSE
+
+# use order() and integer subsetting to order an object by its rows or columns
+df2 <- df[sample(nrow(df)), 3:1]
+df2
+
+# order df2 by column x, ascending
+df2[order(df2$x), ]
+
+# order columns of df2
+df2[, order(names(df2))]
+
+# vectors can be sorted directly with sort()
+# data frames can be sorted with dplyr::arrange()
