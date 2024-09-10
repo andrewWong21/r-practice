@@ -94,3 +94,38 @@ df2[, order(names(df2))]
 
 # vectors can be sorted directly with sort()
 # data frames can be sorted with dplyr::arrange()
+
+# some data frames collapse identical rows into one row with a count column
+# combining integer subsetting and rep() allows for uncollapsing such tables
+# rep(x, y) repeats x[i], y[i] times
+df <- data.frame(
+  x = c(2, 4, 1),
+  y = c(9, 11, 6),
+  n = c(3, 5, 1)
+)
+rep(1:nrow(df), df$n)
+df[rep(1:nrow(df), df$n), ]
+
+# columns can be removed from a data frame by setting columns to NULL
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df
+df$z <- NULL
+df
+
+# alternatively, data frame can be subsetted to return relevant columns
+df[c("x", "y")]
+
+# specify columns to exclude with set operations
+df[setdiff(names(df), "z")]
+
+# logical subsetting can consider conditions of multiple columns at once
+# conditions can be easily combined with & and |, "and" and "or"
+mtcars[mtcars$gear == 5, ]
+mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ]
+
+# & and | are vector operators, while && and || are scalar operators (use in if)
+# use De Morgan's laws to simplify boolean expressions
+# !(x & y) is equivalent to !x | !y
+# !(x | y) is equivalent to !x & !y
+
+# !(x & !(y | z)) == !x | !!(y | z) == !x | y | z
