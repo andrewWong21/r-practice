@@ -128,4 +128,61 @@ mtcars[mtcars$gear == 5 & mtcars$cyl == 4, ]
 # !(x & y) is equivalent to !x | !y
 # !(x | y) is equivalent to !x & !y
 
-# !(x & !(y | z)) == !x | !!(y | z) == !x | y | z
+# e.g. !(x & !(y | z)) == !x | !!(y | z) == !x | y | z
+
+# natural equivalence between set operations (integer subsetting)
+# and Boolean algebra (logical subsetting)
+
+# set operations are recommended for finding first or last TRUE
+# or in cases of few TRUE values and many FALSE values
+
+# which() is useful for converting boolean representation to int representation
+# returns true indices of logical object
+x <- sample(10) < 4
+which(x)
+
+# no built-in reverse for which
+unwhich <- function(x, n){
+  out <- rep_len(FALSE, n)
+  out[x] <- TRUE
+  out
+}
+unwhich(which(x), 10)
+
+# x[which(y)] is redundant form of x[y], same result is returned (usually)
+
+x1 <- 1:10 %% 2 == 0
+x1
+x2 <- which(x1)
+x2
+
+y1 <- 1:10 %% 5 == 0
+y1
+y2 <- which(y1)
+y2
+
+# A & B <-> intersect(A, B)
+x1 & y1
+intersect(x2, y2)
+
+# A | B <-> union(A, B)
+x1 | y1
+union(x2, y2)
+
+# A & !B <-> setdiff(A, B) (set difference)
+x1 & !y1
+setdiff(x2, y2)
+
+# xor(A, B) <-> setdiff(union(A, B) - intersect(A, B))
+# values in exactly one of two sets (union - intersection)
+xor(x1, y1)
+setdiff(union(x2, y2), intersect(x2, y2))
+
+# if logical vector contains NA, which() drops missing values
+# while logical subsetting replaces corresponding values with NA
+
+# x[-which(y)] is not equivalent to x[!y]
+# applying which() to a logical vector containing only FALSE values
+# returns integer(0), an empty integer vector
+# -integer(0) is the same as integer(0), resulting in no values subsetted
+# instead of all values subsetted as expected from negation of all FALSE
