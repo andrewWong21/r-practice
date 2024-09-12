@@ -186,3 +186,62 @@ setdiff(union(x2, y2), intersect(x2, y2))
 # returns integer(0), an empty integer vector
 # -integer(0) is the same as integer(0), resulting in no values subsetted
 # instead of all values subsetted as expected from negation of all FALSE
+
+# subsetting with positive integers selects elements at specified positions
+# subsetting with negative integers drop elements at specified positions
+# subsetting with logical vectors selects elements at positions with TRUE values
+# subsetting with character vectors selects elements matching names
+
+# subsetting a list with [] always returns a list
+# subsetting a list with [[]] returns a single object
+# $ is an alternative syntax for [[]]
+# does not require wrapping quotes but performs partial matching by default
+
+# drop = FALSE is used to preserve original dimensions
+# when subsetting data frame, array, or matrix
+
+# if x is a matrix, x[] <- replaces all entries in x with 0
+# x <- 0 binds an integer vector of length 1 to the name x
+
+# a named vector can be used to relabel categorical values
+# by acting as a lookup table with character keys
+c(a = 1, b = 2, c = 3)
+c(a = 1, b = 2, c = 3)[c("b", "c", "a")]
+
+# -------------------------------------------------------------------------
+
+# 1. How would you randomly permute the columns of a data frame?
+# Can you simultaneously permute the rows and columns in one step?
+
+# permute columns in data frame by sampling column indices without replacement
+names(iris)
+names(iris)[sample(ncol(iris))]
+
+sample(ncol(iris))
+iris[sample(ncol(iris))]
+
+# permute rows and columns by sampling from rows and columns
+iris[sample(nrow(iris)), sample(ncol(iris))]
+
+
+# 2. How would you select a random sample of n rows from a data frame?
+# What if the sample had to be contiguous? (all rows between first and last row)
+
+n <- 20
+# subset n rows and all columns from iris dataset
+iris[sample(nrow(iris), n), ]
+
+# for contiguous sampling, create range from random start index within bounds
+start <- sample(nrow(iris) - n, 1)
+iris[start:(start + n), ]
+
+
+# 3. How could you put the columns in a data frame in alphabetical order?
+
+# use order() to order columns with integer subsetting
+order(names(iris))
+iris[order(names(iris))]
+
+# use sort() to order columns by character subsetting
+sort(names(iris))
+iris[sort(names(iris))]
