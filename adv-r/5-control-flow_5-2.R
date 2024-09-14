@@ -54,3 +54,41 @@ if (c(TRUE, FALSE)) 1
 x <- 1:10
 ifelse(x %% 5 == 0, "XXX", as.character(x))
 ifelse(x %% 2 == 0, "even", "odd")
+
+# dplyr::case_when() allows any number of condition-value pairs
+dplyr::case_when(
+  x %% 35 == 0 ~ "fizz buzz",
+  x %% 5 == 0 ~ "fizz",
+  x %% 7 == 0 ~ "buzz",
+  is.na(x) ~ "???",
+  TRUE ~ as.character(x)
+)
+
+# switch() allows for more succinct representation of many if-else blocks
+x_option <- function(x){
+  if (x == "a"){
+    "option 1"
+  }
+  else if (x == "b"){
+    "option 2"
+  }
+  else if (x == "c"){
+    "option 3"
+  }
+  else{
+    stop("Invalid `x` value")
+  }
+}
+
+x_option2 <- function(x){
+  switch(x,
+    a = "option 1",
+    b = "option 2",
+    c = "option 3",
+    stop("Invalid `x` value")
+  )
+}
+
+# last component of switch() should return an error
+# otherwise mismatched inputs will return NULL
+(switch("c", a = 1, b = 2))
