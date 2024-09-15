@@ -92,3 +92,45 @@ x_option2 <- function(x){
 # last component of switch() should return an error
 # otherwise mismatched inputs will return NULL
 (switch("c", a = 1, b = 2))
+
+# right hand side of assignment can be left empty
+# allowing inputs to fall through to another input with the same output value
+legs <- function(x){
+  switch(x,
+   cow = ,
+   horse = ,
+   dog = 4,
+   human = ,
+   chicken = 2,
+   plant = 0,
+   stop("Unknown input")
+ )
+}
+
+legs("cow")
+legs("human")
+
+# switch() works with numeric inputs but character inputs are recommended
+
+# -------------------------------------------------------------------------
+
+# 1. What type of vector does each of the following calls to ifelse() return?
+
+ifelse(TRUE, 1, "no")  # numeric   - returns 1
+ifelse(FALSE, 1, "no") # character - returns "no"
+ifelse(NA, 1, "no")    # logical   - returns NA
+
+
+# 2. Why does the following code work?
+
+# nonzero integers are truthy
+x <- 1:10
+if (length(x)) "not empty" else "empty" # returns "not empty"
+as.logical(10)
+as.logical(-3)
+as.logical(1)
+
+# length of numeric() is 0, a falsy value
+y <- numeric()
+if (length(y)) "not empty" else "empty" # returns "empty"
+as.logical(0)
