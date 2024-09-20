@@ -49,6 +49,26 @@ environment(sum)
 
 # R functions are objects in and of themselves - "first-class functions"
 # no special syntax for creating functions
+# function objects are created with function() and bound to a name with <- 
 
 # binding function object to a name is not required - functions may be anonymous
 lapply(mtcars, function(x) length(unique(x)))
+
+# functions can be placed in a list
+funs <- list(
+  half = function(x) x / 2,
+  double = function(x) x * 2
+)
+
+funs$half(10)
+funs$double(10)
+
+# functions are normally invoked by placing arguments in parentheses after name
+mean(1:10, na.rm = TRUE)
+
+# if arguments are already in a data structure, can also use do.call(fun, args)
+# where fun is the name of the function and args is a list of arguments
+args <- list(1:10, na.rm = TRUE)
+do.call(mean, args)
+
+# -------------------------------------------------------------------------
