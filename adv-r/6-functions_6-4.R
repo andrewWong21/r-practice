@@ -43,6 +43,66 @@ x |>
 
 # R uses lexical scoping
 # values are looked up based on how a function is defined, not called
+# scoping rules use a parse-time structure
+x <- 10
+g01 <- function(){
+  x <- 20
+  x
+}
+g01()
 
 # four primary rules of scoping
 # name masking, functions vs. variables, fresh start, dynamic lookup
+
+# name masking - names defined inside a function mask names defined outside
+x <- 10
+y <- 20
+g02 <- function(){
+  x <- 1
+  y <- 2
+  c(x, y)
+}
+g02()
+
+# R looks one level up if name is not defined within function
+x <- 2
+g03 <- function(){
+  y <- 1
+  c(x, y)
+}
+g03()
+
+# previous value of y is not changed
+y
+
+# rules can be extrapolated to nested functions
+# R will check inside function, then where function was defined, and so on
+# until global environment is reached, then loaded packages are checked
+x <- 1
+g04 <- function(){
+  y <- 2
+  i <- function(){
+    z <- 3
+    c(x, y, z)
+  }
+  i()
+}
+g04()
+
+# R's scoping rules also apply to functions since they are objects too
+g07 <- function(x) x + 1
+g08 <- function(){
+  g07 <- function(x) x + 100
+  g07(10)
+}
+g08()
+
+# when function and non-function share name, R will ignore non-function objects
+# when looking for a name used in a function call
+# not recommended to give different objects the same name
+g09 <- function(x) x + 100
+g10 <- function(){
+  g09 <- 10
+  g09(g09)
+}
+g10()
