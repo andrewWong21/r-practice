@@ -106,3 +106,42 @@ g10 <- function(){
   g09(g09)
 }
 g10()
+
+# a function creates a new environment for hosting its execution
+# each time it is called, so it cannot keep track of previous calls
+
+# g11 returns the same value every time it is called
+# returns 1 because the name "a" does not exist in the execution environment
+g11 <- function(){
+  if (!exists("a")){
+    a <- 1
+  }
+  else{
+    a <- a + 1
+  }
+  a
+}
+g11()
+g11()
+
+# lexical scoping determines where to look for values
+# R looks for values at runtime instead of compile-time
+# output of function may differ depending on objects outside of its environment
+g12 <- function() x + 1
+x <- 15
+g12() # 16
+x <- 20
+g12() # 21
+
+# use codetools::findGlobals() to list a function's external dependencies
+codetools::findGlobals(g12)
+
+# fix external dependency by changing function environment to empty environment
+environment(g12) <- emptyenv()
+g12() # returns error
+
+# R relies on lexical scoping to find every object,
+# including functions (e.g. mean()) and built-ins (e.g. +, -)
+# which allows for simplicity in scoping rules
+
+# -------------------------------------------------------------------------
