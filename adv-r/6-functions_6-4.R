@@ -145,3 +145,45 @@ g12() # returns error
 # which allows for simplicity in scoping rules
 
 # -------------------------------------------------------------------------
+
+# 1. What does the following code return? Why?
+# Describe how each of the 3 `c`s is interpreted.
+
+c <- 10
+c(c = c)
+
+# first c - function for combining arguments 
+# second c - name of element in vector
+# third c - name bound to object with value 10
+
+# returns numeric vector of length 1 with element named c having a value of 10
+
+
+# 2. What are the four principles that govern how R looks for values?
+
+# name masking - names defined inside function mask names outside function
+# if name is not defined in function, R looks one level up
+
+# functions vs. variables
+# R ignores non-function objects when looking for names used in function call
+
+# fresh start - new environment is created every time function is invoked
+# functions do not track what happened during previous invocations
+
+# dynamic lookup - R looks up values when function is run
+
+
+# 3. What happens when the function is run?
+f <- function(x){
+  f <- function(x){
+    f <- function(){
+      x ^ 2
+    }
+    f() + 1
+  }
+  f(x) * 2
+}
+f(10)
+# innermost f returns 100, looks up value of x in middle function, finds 10
+# middle f returns 101, adds 1 to return value of innermost function f
+# outermost f returns 202, doubles return value of middle function f
