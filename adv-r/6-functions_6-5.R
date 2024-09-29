@@ -111,3 +111,50 @@ f2()
 # returns 100
 # z is bound to the value 100 before x is accessed
 # illustrates lazy evaluation
+
+
+# 3. What does this function return? Why? What principle does it illustrate?
+y <- 10
+f1 <- function(x = {y <- 1; 2}, y = 0){
+  c(x, y)
+}
+f1() # returns c(2, 1)
+y    # returns 10
+
+# when x is accessed while evaluating c(x, y), x is bound to 2, y is bound to 1
+# promise y = 0 is not evaluated because y has already been assigned a value
+# value of y outside function is not affected by assignment of y inside function
+# illustrates name masking
+
+
+# 4. In hist(), the default value of xlim is range(breaks), the default value
+# for breaks is "Sturges", and
+range("Sturges")
+# Explain how hist() works to get a correct xlim value.
+
+# range is a character vector of size 2
+
+
+# 5. Explain why this function works. Why is it confusing?
+show_time <- function(x = stop("Error!")){
+  stop <- function(...) Sys.time()
+  print(x)
+}
+show_time()
+
+# stop function is defined before x is accessed, masking default
+# so instead of using the base stop function,
+# x calls the defined stop function that returns the system time
+
+# if x is supplied by user, behavior of function changes
+# and stop function is not overwritten inside function
+show_time(x = stop("Error!"))
+
+
+# 6. How many arguments are required when calling library()?
+args(library)
+
+# no arguments are required, calling library() without arguments
+# prints all packages in the directories in lib.loc
+# which itself defaults to directories listed in .libPaths()
+library()
